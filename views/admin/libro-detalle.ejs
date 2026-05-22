@@ -277,7 +277,7 @@
                 <% if (libro.Portada) { %>
                     <img src="/img/libros/<%= libro.Portada %>" alt="<%= libro.Titulo %>">
                 <% } else { %>
-                    <div class="sin-foto">📚</div>
+                    <div class="sin-foto">No Foto</div>
                 <% } %>
             </div>
             
@@ -287,22 +287,22 @@
                 
                 <div class="libro-meta">
                     <% if (libro.ISBN) { %>
-                        <span>📖 ISBN: <%= libro.ISBN %></span>
+                        <span>ISBN: <%= libro.ISBN %></span>
                     <% } %>
                     <% if (libro.AnoPublicacion) { %>
-                        <span>📅 <%= libro.AnoPublicacion %></span>
+                        <span><%= libro.AnoPublicacion %></span>
                     <% } %>
                     <% if (libro.NombreGenero) { %>
-                        <span>🏷️ <%= libro.NombreGenero %></span>
+                        <span><%= libro.NombreGenero %></span>
                     <% } %>
                     <% if (libro.NombreEditorial) { %>
-                        <span>🏢 <%= libro.NombreEditorial %></span>
+                        <span><%= libro.NombreEditorial %></span>
                     <% } %>
                 </div>
                 
                 <!-- Autores -->
                 <div class="autores-list">
-                    <h3>✍️ Autores</h3>
+                    <h3>Autores</h3>
                     <% if (autores && autores.length > 0) { %>
                         <% autores.forEach(autor => { %>
                             <span class="autor-tag">
@@ -317,7 +317,7 @@
                 <!-- Sinopsis -->
                 <% if (libro.Sinopsis) { %>
                     <div class="libro-sinopsis">
-                        <h3>📝 Synopsis</h3>
+                        <h3>Synopsis</h3>
                         <p><%= libro.Sinopsis %></p>
                     </div>
                 <% } %>
@@ -325,10 +325,10 @@
                 <!-- Acciones -->
                 <div class="acciones">
                     <a href="/admin/libros/editar/<%= libro.IdLibro %>" class="btn btn-primary">
-                        ✏️ Editar
+                        Editar
                     </a>
                     <button onclick="confirmarEliminacion()" class="btn btn-danger">
-                        🗑️ Eliminar
+                        Eliminar
                     </button>
                 </div>
             </div>
@@ -336,7 +336,7 @@
         
         <!-- Ejemplares -->
         <div class="seccion">
-            <h2>📚 Ejemplares (<%= ejemplares.length %>)</h2>
+            <h2>Ejemplares (<%= ejemplares.length %>)</h2>
             
             <% if (ejemplares && ejemplares.length > 0) { %>
                 <table class="tabla-ejemplares">
@@ -352,19 +352,19 @@
                     <tbody>
                                                <% ejemplares.forEach(ejemplar => { %>
                             <tr>
-                                <td><strong><%= ejemplar.CodigoBarra || 'N/A' %></strong></td>   <!-- ✅ exemplar -> ejemplar -->
-                                <td><%= ejemplar.estadoMaterial || 'Bueno' %></td>                      <!-- ✅ exemplar -> ejemplar -->
+                                <td><strong><%= ejemplar.CodigoBarra || 'N/A' %></strong></td>   
+                                <td><%= ejemplar.estadoMaterial || 'Bueno' %></td>                      
                                 <td>
                                     <span class="ubicacion-badge">
-                                        <%= ejemplar.NombreUbicacion || 'No asignada' %>              <!-- ✅ exemplar -> ejemplar -->
+                                        <%= ejemplar.NombreUbicacion || 'No asignada' %>              
                                     </span>
                                 </td>
                                 <td><%= ejemplar.FechaAdquisicion ? new Date(ejemplar.FechaAdquisicion).toLocaleDateString('es-MX') : 'N/A' %></td>  <!-- ✅ ejemplares -> ejemplar -->
                                 <td>
                                     <% if (ejemplar.Activo) { %>
-                                        <span class="status-badge disponible-badge">✓ Disponible</span>
+                                        <span class="status-badge disponible-badge">Disponible</span>
                                     <% } else { %>
-                                        <span class="status-badge prestado-badge">⚠ Prestado</span>
+                                        <span class="status-badge prestado-badge">Prestado</span>
                                     <% } %>
                                 </td>
                             </tr>
@@ -380,7 +380,7 @@
         
         <!-- Historial de Préstamos -->
         <div class="seccion">
-            <h2>📋 Historial de Préstamos</h2>
+            <h2>Historial de Préstamos</h2>
             
             <% if (historial && historial.length > 0) { %>
                 <table class="tabla-historial">
@@ -441,5 +441,7 @@
             }
         }
     </script>
+
+    <%- include('../partials/footer') %>
 </body>
 </html>

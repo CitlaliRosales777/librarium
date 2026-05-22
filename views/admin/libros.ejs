@@ -11,8 +11,8 @@
     
     <main>
         <div class="menu-admin">
-            <h1>📚 Gestión de Libros</h1>
-            <a href="/admin/libros/nuevo" class="btn btn-primary">➕ Nuevo Libro</a>
+            <h1>Gestión de Libros</h1>
+            <a href="/admin/libros/nuevo" class="btn btn-primary">Nuevo Libro</a>
         </div>
         
         <% if (libros && libros.length > 0) { %>
@@ -44,7 +44,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="/admin/libros/<%= libro.IdLibro %>" class="btn btn-small">👁️ Ver</a>
+                                <a href="/admin/libros/<%= libro.IdLibro %>" class="btn btn-small">Ver</a>
                             </td>
                         </tr>
                     <% }) %>
@@ -52,14 +52,12 @@
             </table>
         <% } else { %>
             <div class="no-resultados">
-                <p>📚 No hay libros registrados</p>
-                <a href="/admin/libros/nuevo" class="btn btn-primary">➕ Agregar el primer libro</a>
+                <p>No hay libros registrados</p>
+                <a href="/admin/libros/nuevo" class="btn btn-primary">Agregar el primer libro</a>
             </div>
         <% } %>
     </main>
     
-    <footer>
-        <p>&copy; 2024 Librarium</p>
-    </footer>
+    <%- include('../partials/footer') %>
 </body>
 </html>

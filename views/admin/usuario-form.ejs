@@ -13,7 +13,7 @@
         <div class="form-container">
             <div class="form-card">
                 <div class="card-header">
-                    <h1><%= usuario ? '✏️ Editar Usuario' : '👤 Nuevo Usuario' %></h1>
+                    <h1><%= usuario ? 'Editar Usuario' : 'Nuevo Usuario' %></h1>
                     <p><%= usuario ? 'Actualiza los datos del usuario' : 'Registra un nuevo usuario en la biblioteca' %></p>
                 </div>
                 
@@ -103,16 +103,13 @@
                     <div class="form-actions">
                         <a href="/admin/usuarios" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
-                            💾 <%= usuario ? 'Guardar Cambios' : 'Crear Usuario' %>
+                            <%= usuario ? 'Guardar Cambios' : 'Crear Usuario' %>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </main>
-    
-    <footer>
-        <p>&copy; 2024 Librarium</p>
-    </footer>
 </body>
 </html>
+<%- include('../partials/footer') %>

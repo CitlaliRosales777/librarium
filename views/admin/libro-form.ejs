@@ -20,7 +20,7 @@
         <div class="form-container">
             <div class="form-card">
                 <div class="card-header">
-                    <h1><%= libro ? '✏️ Editar Libro' : '📚 Nuevo Libro' %></h1>
+                    <h1><%= libro ? 'Editar Libro' : 'Nuevo Libro' %></h1>
                     <p><%= libro ? 'Actualiza la información del libro' : 'Registra un nuevo libro en la biblioteca' %></p>
                 </div>
                 
@@ -158,7 +158,7 @@
                     <div class="form-actions">
                         <a href="/admin/libros" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
-                            💾 <%= libro ? 'Guardar Cambios' : 'Crear Libro' %>
+                            <%= libro ? 'Guardar Cambios' : 'Crear Libro' %>
                         </button>
                     </div>
                 </form>
@@ -166,8 +166,6 @@
         </div>
     </main>
     
-    <footer>
-        <p>&copy; 2024 Librarium - Sistema de Gestión Bibliotecaria</p>
-    </footer>
+    <%- include('../partials/footer') %>
 </body>
 </html>

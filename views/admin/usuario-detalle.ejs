@@ -12,14 +12,14 @@
         <h1><%= usuario.Nombre %> <%= usuario.ApellidoPaterno %> <%= usuario.ApellidoMaterno || '' %></h1>
         
         <div class="libro-meta">
-            <span>📧 <%= usuario.Correo %></span>
+            <span><%= usuario.Correo %></span>
             <% if (usuario.Telefono) { %>
-                <span>📞 <%= usuario.Telefono %></span>
+                <span><%= usuario.Telefono %></span>
             <% } %>
             <% if (usuario.Ciudad) { %>
-                <span>🏙️ <%= usuario.Ciudad %></span>
+                <span><%= usuario.Ciudad %></span>
             <% } %>
-            <span>👤 <%= usuario.NombreRol %></span>
+            <span><%= usuario.NombreRol %></span>
         </div>
         
         <div class="libro-sinopsis">
@@ -34,7 +34,7 @@
         
         <div class="acciones">
             <a href="/admin/usuarios/editar/<%= usuario.IdUsuario %>" class="btn btn-primary">
-                ✏️ Editar
+                Editar
             </a>
         </div>
     </div>
@@ -42,7 +42,7 @@
 
 <!-- Historial de préstamos -->
 <div class="seccion">
-    <h2>📚 Historial de Préstamos</h2>
+    <h2>Historial de Préstamos</h2>
     
     <% if (prestamos && prestamos.length > 0) { %>
         <table>
@@ -85,7 +85,7 @@
         </table>
     <% } else { %>
         <div class="no-resultados">
-            <p>📚 No hay préstamos registrados</p>
+            <p>No hay préstamos registrados</p>
         </div>
     <% } %>
 </div>
