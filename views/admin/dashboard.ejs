@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+
+<h1>Panel de Administración</h1>
+
+<div class="dashboard">
+    <div class="card">
+        <h3>📚 Libros</h3>
+        <p class="num"><%= totalLibros %></p>
+    </div>
+    <div class="card">
+        <h3>📖 Ejemplares</h3>
+        <p class="num"><%= totalEjemplares %></p>
+    </div>
+    <div class="card">
+        <h3>📤 Préstamos Activos</h3>
+        <p class="num"><%= prestamosActivos %></p>
+    </div>
+    <div class="card">
+        <h3>👥 Socios</h3>
+        <p class="num"><%= totalSocios %></p>
+    </div>
+</div>
+
+<div class="menu-admin">
+    <a href="/admin/libros" class="btn">Gestión de Libros</a>
+    <a href="/admin/usuarios" class="btn">Gestión de Usuarios</a>
+    <a href="/admin/prestamos" class="btn">Préstamos</a>
+    <a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
+</div>
+
+<%- include('../partials/footer') %>

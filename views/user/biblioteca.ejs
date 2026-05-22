@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+
+<h1>Catálogo de Libros</h1>
+
+<div class="menu-user">
+    <a href="/user/biblioteca">Biblioteca</a>
+    <a href="/buscar">🔍 Buscar</a>
+    <a href="/user/mis-prestamos">Mis Préstamos</a>
+</div>
+
+<div class="busqueda">
+    <input type="text" id="buscador" placeholder="Buscar por título, autor, ISBN o género...">
+    <button onclick="buscar()">Buscar</button>
+</div>
+
+<div id="resultados"></div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>ISBN</th>
+            <th>Año</th>
+            <th>Género</th>
+            <th>Editorial</th>
+            <th>Disponibles</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% libros.forEach(function(libro) { %>
+        <tr>
+            <td><%= libro.Titulo %></td>
+            <td><%= libro.ISBN %></td>
+            <td><%= libro.AnoPublicacion %></td>
+            <td><%= libro.NombreGenero %></td>
+            <td><%= libro.NombreEditorial %></td>
+            <td><%= libro.disponibles %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<script>
+function buscar() {
+    const q = document.getElementById('buscador').value;
+    fetch('/user/buscar?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+            console.log(data);
+        });
+}
+</script>
+
+<%- include('../partials/footer') %>

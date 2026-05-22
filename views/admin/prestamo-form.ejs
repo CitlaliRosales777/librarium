@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<div class="form-container">
+    <div class="form-card">
+        <div class="card-header">
+            <h1>📚 Nuevo Préstamo</h1>
+            <p>Registrar un nuevo préstamo de libro</p>
+        </div>
+        
+        <form action="/admin/prestamos/nuevo" method="POST">
+            <div class="form-body">
+                <!-- Usuario -->
+                <div class="form-group">
+                    <label>Usuario (Socio) *</label>
+                    <select name="IdUsuario" class="form-control" required>
+                        <option value="">-- Seleccionar Usuario --</option>
+                        <% usuarios.forEach(function(u) { %>
+                            <option value="<%= u.IdUsuario %>">
+                                <%= u.Nombre %> <%= u.ApellidoPaterno %> (<%= u.Correo %>)
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Ejemplar -->
+                <div class="form-group">
+                    <label>Libro *</label>
+                    <select name="IdEjemplar" class="form-control" required>
+                        <option value="">-- Seleccionar Libro --</option>
+                        <% ejemplares.forEach(function(e) { %>
+                            <option value="<%= e.IdEjemplar %>">
+                                <%= e.Titulo %> - <%= e.CodigoBarra %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Días de préstamo -->
+                <div class="form-group">
+                    <label>Días de Préstamo</label>
+                    <input type="number" name="dias" class="form-control" 
+                           value="15" min="1" max="30">
+                    <small style="color: #777;">Valor por defecto: 15 días</small>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="/admin/prestamos" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    📚 Realizar Préstamo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

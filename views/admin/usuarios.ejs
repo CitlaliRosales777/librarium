@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+<div class="menu-admin">
+    <h1>👤 Gestión de Usuarios</h1>
+    <a href="/admin/usuarios/nuevo" class="btn btn-primary">➕ Nuevo Usuario</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Registro</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% usuarios.forEach(function(u) { %>
+        <tr>
+            <td><%= u.Nombre %> <%= u.ApellidoPaterno %></td>
+            <td><%= u.Correo %></td>
+            <td><%= u.NombreRol %></td>
+            <td><%= u.FechaRegistro %></td>
+            <td>
+                <span class="badge <%= u.Activo ? 'disponible' : 'no-disponible' %>">
+                    <%= u.Activo ? 'Activo' : 'Inactivo' %>
+                </span>
+            </td>
+            <td>
+                <a href="/admin/usuarios/<%= u.IdUsuario %>" class="btn btn-small">👁️ Ver</a>
+                <a href="/admin/usuarios/editar/<%= u.IdUsuario %>" class="btn btn-small">✏️ Editar</a>
+            </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<%- include('../partials/footer') %>

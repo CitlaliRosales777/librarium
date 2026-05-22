@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<h1>Mis Préstamos</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Libro</th>
+            <th>Cód. Barra</th>
+            <th>Fecha Préstamo</th>
+            <th>Fecha Esperada</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% prestamos.forEach(function(p) { %>
+        <tr>
+            <td><%= p.Titulo %></td>
+            <td><%= p.CodigoBarra %></td>
+            <td><%= p.FechaPrestamo %></td>
+            <td><%= p.FechaDevolucionEsperada %></td>
+            <td><%= p.IdEstadoPrestamo == 1 ? 'Activo' : 'Devuelto' %></td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<%- include('../partials/footer') %>

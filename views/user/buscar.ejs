@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+<h1>🔍 Búsqueda de Material</h1>
+
+<form action="/buscar" method="GET" class="busqueda-form">
+    <div class="busqueda-box">
+        <input type="text" name="q" value="<%= q %>" placeholder="Buscar por título, autor, ISBN o género...">
+        <button type="submit">Buscar</button>
+    </div>
+    
+    <div class="filtros">
+        <label>
+            <input type="radio" name="tipo" value="" <%= !tipo ? 'checked' : '' %>> Todo
+        </label>
+        <label>
+            <input type="radio" name="tipo" value="libro" <%= tipo === 'libro' ? 'checked' : '' %>> Título
+        </label>
+        <label>
+            <input type="radio" name="tipo" value="autor" <%= tipo === 'autor' ? 'checked' : '' %>> Autor
+        </label>
+        <label>
+            <input type="radio" name="tipo" value="isbn" <%= tipo === 'isbn' ? 'checked' : '' %>> ISBN
+        </label>
+        <label>
+            <input type="radio" name="tipo" value="genero" <%= tipo === 'genero' ? 'checked' : '' %>> Género
+        </label>
+    </div>
+</form>
+
+<% if (resultados.length > 0) { %>
+    <div class="resultados">
+        <p class="contador">Se encontraron <%= resultados.length %> resultados</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>ISBN</th>
+                    <th>Año</th>
+                    <th>Género</th>
+                    <th>Editorial</th>
+                    <th>Disponibles</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% resultados.forEach(function(libro) { %>
+                <tr>
+                    <td><%= libro.Titulo %></td>
+                    <td><%= libro.ISBN %></td>
+                    <td><%= libro.AnoPublicacion %></td>
+                    <td><%= libro.NombreGenero %></td>
+                    <td><%= libro.NombreEditorial %></td>
+                    <td>
+                        <span class="badge <%= libro.disponibles > 0 ? 'disponible' : 'no-disponible' %>">
+                            <%= libro.disponibles %>
+                        </span>
+                    </td>
+                    <td>
+                        <% if (libro.disponibles > 0) { %>
+                            <a href="/user/reservar/<%= libro.IdLibro %>" class="btn btn-small">Reservar</a>
+                        <% } else { %>
+                            <span class="texto-gris">No disponible</span>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } else if (q) { %>
+    <div class="no-resultados">
+        <p>No se encontraron resultados para "<%= q %>"</p>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,93 @@
+<%- include('../partials/header') %>
+
+<div class="breadcrumb">
+    <a href="/admin/dashboard">Dashboard</a> / 
+    <a href="/admin/usuarios">Usuarios</a> / 
+    <%= usuario.Nombre %> <%= usuario.ApellidoPaterno %>
+</div>
+
+<div class="libro-main">
+    <!-- Info del usuario -->
+    <div class="libro-info">
+        <h1><%= usuario.Nombre %> <%= usuario.ApellidoPaterno %> <%= usuario.ApellidoMaterno || '' %></h1>
+        
+        <div class="libro-meta">
+            <span>📧 <%= usuario.Correo %></span>
+            <% if (usuario.Telefono) { %>
+                <span>📞 <%= usuario.Telefono %></span>
+            <% } %>
+            <% if (usuario.Ciudad) { %>
+                <span>🏙️ <%= usuario.Ciudad %></span>
+            <% } %>
+            <span>👤 <%= usuario.NombreRol %></span>
+        </div>
+        
+        <div class="libro-sinopsis">
+            <p><strong>Fecha de registro:</strong> <%= new Date(usuario.FechaRegistro).toLocaleDateString('es-MX') %></p>
+            <p>
+                <strong>Estado:</strong> 
+                <span class="badge <%= usuario.Activo ? 'disponible' : 'no-disponible' %>">
+                    <%= usuario.Activo ? 'Activo' : 'Inactivo' %>
+                </span>
+            </p>
+        </div>
+        
+        <div class="acciones">
+            <a href="/admin/usuarios/editar/<%= usuario.IdUsuario %>" class="btn btn-primary">
+                ✏️ Editar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Historial de préstamos -->
+<div class="seccion">
+    <h2>📚 Historial de Préstamos</h2>
+    
+    <% if (prestamos && prestamos.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Libro</th>
+                    <th>Código</th>
+                    <th>Fecha Préstamo</th>
+                    <th>Fecha Esperada</th>
+                    <th>Fecha Devolución</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% prestamos.forEach(function(p) { %>
+                <tr>
+                    <td><%= p.Titulo %></td>
+                    <td><%= p.CodigoBarra %></td>
+                    <td><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></td>
+                    <td><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></td>
+                    <td>
+                        <% if (p.FechaDevolucionReal) { %>
+                            <%= new Date(p.FechaDevolucionReal).toLocaleDateString('es-MX') %>
+                        <% } else { %>
+                            <span style="color: #e74c3c;">Pendiente</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <% if (p.IdEstadoPrestamo === 1) { %>
+                            <span class="badge no-disponible">Activo</span>
+                        <% } else if (p.IdEstadoPrestamo === 2) { %>
+                            <span class="badge disponible">Devuelto</span>
+                        <% } else { %>
+                            <span class="badge">Vencido</span>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <div class="no-resultados">
+            <p>📚 No hay préstamos registrados</p>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+<h1>Préstamos</h1>
+
+<a href="/admin/prestamos/nuevo" class="btn btn-primary">➕ Nuevo Préstamo</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Libro</th>
+            <th>Cód. Barra</th>
+            <th>Usuario</th>
+            <th>Fecha Préstamo</th>
+            <th>Fecha Esperada</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% prestamos.forEach(function(p) { %>
+        <tr>
+            <td><%= p.Titulo %></td>
+            <td><%= p.CodigoBarra %></td>
+            <td><%= p.nombreUsuario %></td>
+            <td><%= p.FechaPrestamo %></td>
+            <td><%= p.FechaDevolucionEsperada %></td>
+            <td><%= p.IdEstadoPrestamo %></td>
+            <td>
+                <% if (p.IdEstadoPrestamo == 1) { %>
+                <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST" style="display:inline;">
+                    <button type="submit">Devolver</button>
+                </form>
+                <% } %>
+            </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<%- include('../partials/footer') %>

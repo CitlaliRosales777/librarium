@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= libro ? 'Editar' : 'Nuevo' %> Libro - Librarium</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main>
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/admin/dashboard">Dashboard</a> / 
+            <a href="/admin/libros">Libros</a> / 
+            <%= libro ? 'Editar' : 'Nuevo' %>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-card">
+                <div class="card-header">
+                    <h1><%= libro ? '✏️ Editar Libro' : '📚 Nuevo Libro' %></h1>
+                    <p><%= libro ? 'Actualiza la información del libro' : 'Registra un nuevo libro en la biblioteca' %></p>
+                </div>
+                
+                <form action="<%= libro ? '/admin/libros/editar/' + libro.IdLibro : '/admin/libros/nuevo' %>" 
+                      method="POST" 
+                      enctype="multipart/form-data">
+                    
+                    <div class="form-body">
+                        <!-- Título -->
+                        <div class="form-group full-width">
+                            <label>Título del Libro *</label>
+                            <input type="text" name="titulo" class="form-control" 
+                                   placeholder="Ej: Cien años de soledad"
+                                   value="<%= libro ? libro.Titulo : '' %>" required>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <!-- ISBN -->
+                            <div class="form-group">
+                                <label>ISBN</label>
+                                <input type="text" name="isbn" class="form-control" 
+                                       placeholder="978-8401023456"
+                                       value="<%= libro ? libro.ISBN : '' %>">
+                            </div>
+                            
+                            <!-- Año -->
+                            <div class="form-group">
+                                <label>Año de Publicación</label>
+                                <input type="number" name="ano" class="form-control" 
+                                       placeholder="1967" min="1000" max="2030"
+                                       value="<%= libro ? libro.AnoPublicacion : '' %>">
+                            </div>
+                            
+                            <!-- Género -->
+                            <div class="form-group">
+                                <label>Género *</label>
+                                <select name="genero" class="form-control" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    <% generos.forEach(g => { %>
+                                        <option value="<%= g.IdGenero %>" 
+                                                <%= libro && libro.IdGenero === g.IdGenero ? 'selected' : '' %>>
+                                            <%= g.NombreGenero %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            
+                            <!-- Editorial -->
+                            <div class="form-group">
+                                <label>Editorial *</label>
+                                <select name="editorial" class="form-control" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    <% editoriales.forEach(e => { %>
+                                        <option value="<%= e.IdEditorial %>"
+                                                <%= libro && libro.IdEditorial === e.IdEditorial ? 'selected' : '' %>>
+                                            <%= e.NombreEditorial %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            
+                            <!-- Ubicación -->
+                            <div class="form-group">
+                                <label>Ubicación *</label>
+                                <select name="ubicacion" class="form-control" required>
+                                    <option value="">-- Seleccionar --</option>
+                                    <% ubicaciones.forEach(u => { %>
+                                        <option value="<%= u.IdUbicacion %>"
+                                                <%= libro && libro.IdUbicacion === u.IdUbicacion ? 'selected' : '' %>>
+                                            <%= u.NombreUbicacion %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            
+                            <!-- Cantidad (solo crear) -->
+                            <% if (!libro) { %>
+                                <div class="form-group">
+                                    <label>Cantidad de Ejemplares *</label>
+                                    <div class="cantidad-box">
+                                        <div class="numero">
+                                            <input type="number" name="cantidad" value="1" min="1" max="50" required 
+                                                   style="width: 80px; text-align: center;">
+                                        </div>
+                                        <small>Cantidad de copias físicas</small>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Sinopsis -->
+                        <div class="form-group full-width">
+                            <label>Sinopsis</label>
+                            <textarea name="sinopsis" class="form-control" 
+                                      placeholder="Escribe una breve descripción del libro..."><%= libro ? libro.Sinopsis : '' %></textarea>
+                        </div>
+                        
+                        <!-- Autores -->
+                        <div class="form-group full-width">
+                            <label>Autores</label>
+                            <div class="autores-select">
+                                <% if (typeof todosAutores !== 'undefined' && todosAutores.length > 0) { %>
+                                    <% todosAutores.forEach(a => { %>
+                                        <label class="autor-option">
+                                            <input type="checkbox" name="autores" value="<%= a.IdAutor %>"
+                                                   <%= typeof autoresIds !== 'undefined' && autoresIds.includes(a.IdAutor) ? 'checked' : '' %>>
+                                            <span class="nombre">
+                                                <%= a.Nombre %> <%= a.ApellidoPaterno %> <%= a.ApellidoMaterno || '' %>
+                                            </span>
+                                        </label>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p style="padding: 1rem; color: #777;">
+                                        No hay autores registrados.
+                                    </p>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <!-- Portada (solo crear) -->
+                        <% if (!libro) { %>
+                            <div class="form-group full-width">
+                                <label>Imagen de Portada</label>
+                                <div class="upload-zone" onclick="document.getElementById('imagen').click()">
+                                    <p style="font-size: 2rem; color: #667eea;">📷</p>
+                                    <p>Arrastra una imagen o haz clic para seleccionar</p>
+                                    <small>Formatos: JPG, PNG (máx 2MB)</small>
+                                    <input type="file" name="imagen" id="imagen" class="upload-input" accept="image/*">
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="form-actions">
+                        <a href="/admin/libros" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            💾 <%= libro ? 'Guardar Cambios' : 'Crear Libro' %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Librarium - Sistema de Gestión Bibliotecaria</p>
+    </footer>
+</body>
+</html>

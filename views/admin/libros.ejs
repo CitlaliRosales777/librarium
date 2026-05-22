@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libros - Librarium</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main>
+        <div class="menu-admin">
+            <h1>📚 Gestión de Libros</h1>
+            <a href="/admin/libros/nuevo" class="btn btn-primary">➕ Nuevo Libro</a>
+        </div>
+        
+        <% if (libros && libros.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>ISBN</th>
+                        <th>Género</th>
+                        <th>Editorial</th>
+                        <th>Año</th>
+                        <th>Disponibles</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% libros.forEach(libro => { %>
+                        <tr>
+                            <td>
+                                <strong><%= libro.Titulo %></strong>
+                            </td>
+                            <td><%= libro.ISBN || 'N/A' %></td>
+                            <td><%= libro.NombreGenero || 'N/A' %></td>
+                            <td><%= libro.NombreEditorial || 'N/A' %></td>
+                            <td><%= libro.AnoPublicacion || '-' %></td>
+                            <td>
+                                <span class="badge <%= libro.disponibles > 0 ? 'disponible' : 'no-disponible' %>">
+                                    <%= libro.disponibles %>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/admin/libros/<%= libro.IdLibro %>" class="btn btn-small">👁️ Ver</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <div class="no-resultados">
+                <p>📚 No hay libros registrados</p>
+                <a href="/admin/libros/nuevo" class="btn btn-primary">➕ Agregar el primer libro</a>
+            </div>
+        <% } %>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Librarium</p>
+    </footer>
+</body>
+</html>
