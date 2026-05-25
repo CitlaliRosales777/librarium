@@ -1,4 +1,5 @@
 <%- include('../partials/header') %>
+    <%- include('../partials/atajos') %>
 
 <div class="menu-admin">
     <h1>Gestión de Préstamos</h1>
@@ -19,6 +20,7 @@
                 <th>Acciones</th>
             </tr>
         </thead>
+        
         <tbody>
             <% prestamos.forEach(function(p) { %>
             <tr>

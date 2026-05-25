@@ -4,7 +4,7 @@
 
 <div class="menu-user">
     <a href="/user/biblioteca">Biblioteca</a>
-    <a href="/buscar">🔍 Buscar</a>
+    <a href="/buscar">Buscar</a>
     <a href="/user/mis-prestamos">Mis Préstamos</a>
 </div>
 
@@ -40,12 +40,12 @@
             <!-- En cada libro, agregar botón de reservar si no hay ejemplares disponibles -->
 <td>
     <% if (libro.disponibles > 0) { %>
-        <span class="badge disponible">✅ Disponible</span>
+        <span class="badge disponible">Disponible</span>
     <% } else { %>
-        <span class="badge no-disponible">❌ Agotado</span>
+        <span class="badge no-disponible">Agotado</span>
         <form action="/user/reservar" method="POST">
             <input type="hidden" name="IdEjemplar" value="<%= libro.IdEjemplar %>">
-            <button type="submit" class="btn btn-small">🔔 Apartar</button>
+            <button type="submit" class="btn btn-small">Apartar</button>
         </form>
     <% } %>
 </td>

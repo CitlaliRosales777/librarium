@@ -1,6 +1,6 @@
 <%- include('../partials/header') %>
 
-<h1>📚 Mis Reservas</h1>
+<h1>Mis Reservas</h1>
 
 <% if (reservas && reservas.length > 0) { %>
     <table>
@@ -25,15 +25,15 @@
                     <% var hoy = new Date(); %>
                     <% var expira = new Date(r.FechaExpiracion); %>
                     <% if (expira >= hoy) { %>
-                        <span class="badge">⏳ Activa</span>
+                        <span class="badge">Activa</span>
                     <% } else { %>
-                        <span class="badge no-disponible">⚠️ Expirada</span>
+                        <span class="badge no-disponible">Expirada</span>
                     <% } %>
                 </td>
                 <td>
                     <% if (expira >= hoy) { %>
                         <form action="/user/reservas/cancelar/<%= r.IdReserva %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Cancelar reserva?')">❌ Cancelar</button>
+                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Cancelar reserva?')">Cancelar</button>
                         </form>
                     <% } %>
                 </td>
@@ -43,7 +43,7 @@
     </table>
 <% } else { %>
     <div class="no-resultados">
-        <p>📚 No tienes reservas</p>
+        <p>No tienes reservas</p>
         <a href="/user/biblioteca" class="btn btn-primary">Ver Biblioteca</a>
     </div>
 <% } %>

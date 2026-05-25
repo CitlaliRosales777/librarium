@@ -134,8 +134,8 @@
 
 <!-- Notificaciones -->
 <div id="notificaciones-btn">
-    <button onclick="verNotificaciones()" style="background: #3498db; color: white;">
-        🔔
+    <button onclick="verNotificaciones()" style="background: #78ce8c; color: white;">
+        !!
     </button>
     <span id="notif-count">0</span>
 </div>
@@ -146,7 +146,7 @@ function verNotificaciones() {
         .then(res => res.json())
         .then(data => {
             if (data.length > 0) {
-                let msg = '📚 Tus libros reservados están disponibles:\n\n';
+                let msg = 'Tus libros reservados están disponibles:\n\n';
                 data.forEach(n => msg += '• ' + n.titulo + '\n');
                 alert(msg);
             } else {

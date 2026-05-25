@@ -1761,3 +1761,4 @@ app.get('/api/notificaciones', isAuth, async (req, res) => {
     }
     res.json(notificaciones);
 });
+

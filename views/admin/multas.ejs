@@ -1,7 +1,9 @@
 <%- include('../partials/header') %>
+    <%- include('../partials/atajos') %>
+
 
 <div class="menu-admin">
-    <h1>⚠️ Gestión de Multas</h1>
+    <h1>Gestión de Multas</h1>
 </div>
 
 <% 
@@ -18,15 +20,15 @@ multas.forEach(function(m) {
 
 <div class="dashboard">
     <div class="card">
-        <h3>💰 Total Pendiente</h3>
+        <h3>Total Pendiente</h3>
         <div class="num">$<%= totalPendiente.toFixed(2) %></div>
     </div>
     <div class="card">
-        <h3>✅ Total Pagado</h3>
+        <h3>Total Pagado</h3>
         <div class="num">$<%= totalPagado.toFixed(2) %></div>
     </div>
     <div class="card">
-        <h3>📊 Total Multas</h3>
+        <h3>Total Multas</h3>
         <div class="num"><%= multas.length %></div>
     </div>
 </div>
@@ -62,15 +64,15 @@ multas.forEach(function(m) {
                 </td>
                 <td>
                     <% if (m.Pagado) { %>
-                        <span class="badge disponible">✅ Pagado</span>
+                        <span class="badge disponible">Pagado</span>
                     <% } else { %>
-                        <span class="badge no-disponible">⚠️ Pendiente</span>
+                        <span class="badge no-disponible">Pendiente</span>
                     <% } %>
                 </td>
                 <td>
                     <% if (!m.Pagado) { %>
                         <form action="/admin/multas/pagar/<%= m.IdMulta %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Confirmar pago?')">💰 Pagar</button>
+                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Confirmar pago?')">Pagar</button>
                         </form>
                     <% } else { %>
                         <span style="color: #777; font-size: 0.85rem;">Pagado: <%= new Date(m.FechaPago).toLocaleDateString('es-MX') %></span>
@@ -82,7 +84,7 @@ multas.forEach(function(m) {
     </table>
 <% } else { %>
     <div class="no-resultados">
-        <p>✅ No hay multas registradas</p>
+        <p>No hay multas registradas</p>
     </div>
 <% } %>
 

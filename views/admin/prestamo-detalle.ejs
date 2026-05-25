@@ -8,11 +8,11 @@
 
 <div class="libro-main">
     <div class="libro-info">
-        <h1>📚 <%= prestamo.Titulo %></h1>
+        <h1><%= prestamo.Titulo %></h1>
         
         <div class="libro-meta">
-            <span>📖 ISBN: <%= prestamo.ISBN %></span>
-            <span>📚 Código: <%= prestamo.CodigoBarra %></span>
+            <span>ISBN: <%= prestamo.ISBN %></span>
+            <span>Código: <%= prestamo.CodigoBarra %></span>
         </div>
         
         <div class="libro-sinopsis">
@@ -26,14 +26,14 @@
             <% } %>
             
             <% if (prestamo.IdEstadoPrestamo === 1) { %>
-                <span class="badge no-disponible">📌 Activo</span>
+                <span class="badge no-disponible">Activo</span>
             <% } else if (prestamo.IdEstadoPrestamo === 2) { %>
-                <span class="badge disponible">✅ Devuelto</span>
+                <span class="badge disponible">Devuelto</span>
             <% } %>
             
             <% if (multa) { %>
                 <div style="background: #fee; padding: 1rem; margin-top: 1rem; border-radius: 4px;">
-                    <strong>⚠️ Multa:</strong> $<%= multa.Monto %> (por retraso)
+                    <strong>Multa:</strong> $<%= multa.Monto %> (por retraso)
                 </div>
             <% } %>
         </div>
@@ -41,12 +41,12 @@
         <div class="acciones">
             <% if (prestamo.IdEstadoPrestamo === 1) { %>
                 <form action="/admin/prestamos/devolver/<%= prestamo.IdPrestamo %>" method="POST" style="display: inline;">
-                    <button type="submit" class="btn btn-primary">✅ Devolver</button>
+                    <button type="submit" class="btn btn-primary">Devolver</button>
                 </form>
                 
                 <form action="/admin/prestamos/renovar/<%= prestamo.IdPrestamo %>" method="POST" style="display: inline;">
                     <input type="hidden" name="dias" value="10">
-                    <button type="submit" class="btn btn-secondary">🔄 Renovar (10 días)</button>
+                    <button type="submit" class="btn btn-secondary">Renovar (10 días)</button>
                 </form>
             <% } %>
         </div>
