@@ -1,31 +1,135 @@
 <%- include('../partials/header') %>
 
-<h1>Panel de Administración</h1>
+<style>
+    .admin-panel {
+        padding: 2rem;
+        background: #f5f6fa;
+        min-height: 100vh;
+    }
 
-<div class="dashboard">
-    <div class="card">
-        <h3>Libros</h3>
-        <p class="num"><%= totalLibros %></p>
-    </div>
-    <div class="card">
-        <h3>Ejemplares</h3>
-        <p class="num"><%= totalEjemplares %></p>
-    </div>
-    <div class="card">
-        <h3>Préstamos Activos</h3>
-        <p class="num"><%= prestamosActivos %></p>
-    </div>
-    <div class="card">
-        <h3>Socios</h3>
-        <p class="num"><%= totalSocios %></p>
-    </div>
-</div>
+    .admin-panel h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
 
-<div class="menu-admin">
-    <a href="/admin/libros" class="btn">Gestión de Libros</a>
-    <a href="/admin/usuarios" class="btn">Gestión de Usuarios</a>
-    <a href="/admin/prestamos" class="btn">Préstamos</a>
-    <a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .card h3 {
+        color: #3498db;
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .card .num {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .menu-admin {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-admin a {
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    /* Botón secundario (azul) */
+    .menu-admin .btn {
+        background: #3498db;
+        color: white;
+    }
+
+    .menu-admin .btn:hover {
+        background: #2980b9;
+    }
+
+    /* Botón primary (verde) */
+    .menu-admin .btn-primary {
+        background: #27ae60;
+        color: white;
+    }
+
+    .menu-admin .btn-primary:hover {
+        background: #219a52;
+    }
+
+    /* Botón de alertas (rojo/naranja) */
+    .menu-admin a[href*="multas"] {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .menu-admin a[href*="multas"]:hover {
+        background: #c0392b;
+    }
+</style>
+
+
+<div class="admin-panel">
+    <h1>Panel de Administración</h1>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>Libros</h3>
+            <p class="num"><%= totalLibros %></p>
+        </div>
+        <div class="card">
+            <h3>Ejemplares</h3>
+            <p class="num"><%= totalEjemplares %></p>
+        </div>
+        <div class="card">
+            <h3>Préstamos Activos</h3>
+            <p class="num"><%= prestamosActivos %></p>
+        </div>
+        <div class="card">
+            <h3>Socios</h3>
+            <p class="num"><%= totalSocios %></p>
+        </div>
+    </div>
+
+    <div class="menu-admin">
+        <a href="/admin/libros" class="btn">Gestión de Libros</a>
+        <a href="/admin/usuarios" class="btn">Gestión de Usuarios</a>
+        <a href="/admin/prestamos" class="btn">Préstamos</a>
+        <a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
+        <a href="/admin/multas">Multas</a>
+    </div>
 </div>
 
 <%- include('../partials/footer') %>

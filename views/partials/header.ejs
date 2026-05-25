@@ -5,10 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarium</title>
     <link rel="stylesheet" href="/css/estilo.css">
+    <style>
+        .navbar {
+            background: #364b26;
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            height: 80px;
+            box-sizing: border-box;
+        }
+
+        .navbar .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .navbar .logo-img {
+            height: 75px;
+            width: auto;
+        }
+
+        .navbar .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar .menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .navbar .menu span {
+            color: #ecf0f1;
+            font-size: 0.95rem;
+        }
+
+        .navbar .menu a {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .navbar .menu a:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        main {
+            background: #f5f6fa;
+            min-height: calc(100vh - 70px);
+            padding: 2rem;
+        }
+
+        /* Notificaciones */
+        #notificaciones-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #notificaciones-btn button {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        #notificaciones-btn button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #notif-count {
+            display: none;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #notif-count.mostrar {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Librarium</div>
+        <div class="logo-container">
+            <img src="/img/logo.png" alt="Logo Librarium" class="logo-img">
+            <span class="logo-text">Librarium</span>
+        </div>
         <div class="menu">
             <% if (userId) { %>
                 <span>Bienvenido, <%= nombre %></span>
@@ -17,3 +131,42 @@
         </div>
     </nav>
     <main>
+
+<!-- Notificaciones -->
+<div id="notificaciones-btn">
+    <button onclick="verNotificaciones()" style="background: #3498db; color: white;">
+        🔔
+    </button>
+    <span id="notif-count">0</span>
+</div>
+
+<script>
+function verNotificaciones() {
+    fetch('/api/notificaciones')
+        .then(res => res.json())
+        .then(data => {
+            if (data.length > 0) {
+                let msg = '📚 Tus libros reservados están disponibles:\n\n';
+                data.forEach(n => msg += '• ' + n.titulo + '\n');
+                alert(msg);
+            } else {
+                alert('No hay notificaciones');
+            }
+        });
+}
+
+// Verificar cada 30 segundos
+setInterval(() => {
+    fetch('/api/notificaciones')
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('notif-count');
+            if (data.length > 0) {
+                badge.classList.add('mostrar');
+                badge.textContent = data.length;
+            } else {
+                badge.classList.remove('mostrar');
+            }
+        });
+}, 30000);
+</script>

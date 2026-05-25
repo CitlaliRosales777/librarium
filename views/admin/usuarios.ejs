@@ -1,8 +1,11 @@
 <%- include('../partials/header') %>
 
+<%- include('../partials/atajos') %>
+
+
 <div class="menu-admin">
     <h1>Gestión de Usuarios</h1>
-    <a href="/admin/usuarios/nuevo" class="btn btn-primary">➕ Nuevo Usuario</a>
+    <a href="/admin/usuarios/nuevo" class="btn btn-primary">Nuevo Usuario</a>
 </div>
 
 <table>
@@ -29,8 +32,8 @@
                 </span>
             </td>
             <td>
-                <a href="/admin/usuarios/<%= u.IdUsuario %>" class="btn btn-small">👁️ Ver</a>
-                <a href="/admin/usuarios/editar/<%= u.IdUsuario %>" class="btn btn-small">✏️ Editar</a>
+                <a href="/admin/usuarios/<%= u.IdUsuario %>" class="btn btn-small">Ver</a>
+                <a href="/admin/usuarios/editar/<%= u.IdUsuario %>" class="btn btn-small">Editar</a>
             </td>
         </tr>
         <% }); %>

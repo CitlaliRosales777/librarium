@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+
+<h1>📚 Mis Reservas</h1>
+
+<% if (reservas && reservas.length > 0) { %>
+    <table>
+        <thead>
+            <tr>
+                <th>Libro</th>
+                <th>Código</th>
+                <th>Fecha Reserva</th>
+                <th>Expira</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% reservas.forEach(function(r) { %>
+            <tr>
+                <td><strong><%= r.Titulo %></strong></td>
+                <td><%= r.CodigoBarra %></td>
+                <td><%= new Date(r.FechaReserva).toLocaleDateString('es-MX') %></td>
+                <td><%= new Date(r.FechaExpiracion).toLocaleDateString('es-MX') %></td>
+                <td>
+                    <% var hoy = new Date(); %>
+                    <% var expira = new Date(r.FechaExpiracion); %>
+                    <% if (expira >= hoy) { %>
+                        <span class="badge">⏳ Activa</span>
+                    <% } else { %>
+                        <span class="badge no-disponible">⚠️ Expirada</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (expira >= hoy) { %>
+                        <form action="/user/reservas/cancelar/<%= r.IdReserva %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Cancelar reserva?')">❌ Cancelar</button>
+                        </form>
+                    <% } %>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+<% } else { %>
+    <div class="no-resultados">
+        <p>📚 No tienes reservas</p>
+        <a href="/user/biblioteca" class="btn btn-primary">Ver Biblioteca</a>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>

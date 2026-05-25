@@ -8,10 +8,12 @@
     <a href="/user/mis-prestamos">Mis Préstamos</a>
 </div>
 
+
 <div class="busqueda">
     <input type="text" id="buscador" placeholder="Buscar por título, autor, ISBN o género...">
     <button onclick="buscar()">Buscar</button>
 </div>
+
 
 <div id="resultados"></div>
 
@@ -35,6 +37,18 @@
             <td><%= libro.NombreGenero %></td>
             <td><%= libro.NombreEditorial %></td>
             <td><%= libro.disponibles %></td>
+            <!-- En cada libro, agregar botón de reservar si no hay ejemplares disponibles -->
+<td>
+    <% if (libro.disponibles > 0) { %>
+        <span class="badge disponible">✅ Disponible</span>
+    <% } else { %>
+        <span class="badge no-disponible">❌ Agotado</span>
+        <form action="/user/reservar" method="POST">
+            <input type="hidden" name="IdEjemplar" value="<%= libro.IdEjemplar %>">
+            <button type="submit" class="btn btn-small">🔔 Apartar</button>
+        </form>
+    <% } %>
+</td>
         </tr>
         <% }); %>
     </tbody>

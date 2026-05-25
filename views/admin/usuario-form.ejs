@@ -1,115 +1,134 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= usuario ? 'Editar' : 'Nuevo' %> Usuario - Librarium</title>
-    <link rel="stylesheet" href="/css/estilo.css">
-</head>
-<body>
-    <%- include('../partials/header') %>
-    
-    <main>
-        <div class="form-container">
-            <div class="form-card">
-                <div class="card-header">
-                    <h1><%= usuario ? 'Editar Usuario' : 'Nuevo Usuario' %></h1>
-                    <p><%= usuario ? 'Actualiza los datos del usuario' : 'Registra un nuevo usuario en la biblioteca' %></p>
-                </div>
-                
-                <form action="<%= usuario ? '/admin/usuarios/editar/' + usuario.IdUsuario : '/admin/usuarios/nuevo' %>" 
-                      method="POST">
-                    
-                    <div class="form-body">
-                        <div class="form-grid">
-                            <!-- Nombre -->
-                            <div class="form-group">
-                                <label>Nombre *</label>
-                                <input type="text" name="nombre" class="form-control" 
-                                       value="<%= usuario ? usuario.Nombre : '' %>" required>
-                            </div>
-                            
-                            <!-- Apellido Paterno -->
-                            <div class="form-group">
-                                <label>Apellido Paterno *</label>
-                                <input type="text" name="apellidoPaterno" class="form-control" 
-                                       value="<%= usuario ? usuario.ApellidoPaterno : '' %>" required>
-                            </div>
-                            
-                            <!-- Apellido Materno -->
-                            <div class="form-group">
-                                <label>Apellido Materno</label>
-                                <input type="text" name="apellidoMaterno" class="form-control" 
-                                       value="<%= usuario ? usuario.ApellidoMaterno : '' %>">
-                            </div>
-                            
-                            <!-- Correo -->
-                            <div class="form-group">
-                                <label>Correo *</label>
-                                <input type="email" name="correo" class="form-control" 
-                                       value="<%= usuario ? usuario.Correo : '' %>" required>
-                            </div>
-                            
-                            <!-- Teléfono -->
-                            <div class="form-group">
-                                <label>Teléfono</label>
-                                <input type="text" name="telefono" class="form-control" 
-                                       value="<%= usuario ? usuario.Telefono : '' %>">
-                            </div>
-                            
-                            <!-- Ciudad -->
-                            <div class="form-group">
-                                <label>Ciudad</label>
-                                <input type="text" name="ciudad" class="form-control" 
-                                       value="<%= usuario ? usuario.Ciudad : '' %>">
-                            </div>
-                            
-                            <!-- Rol -->
-                            <div class="form-group">
-                                <label>Rol *</label>
-                                <select name="idRol" class="form-control" required>
-                                    <option value="">-- Seleccionar --</option>
-                                    <% roles.forEach(rol => { %>
-                                        <option value="<%= rol.IdRol %>" 
-                                                <%= usuario && usuario.IdRol === rol.IdRol ? 'selected' : '' %>>
-                                            <%= rol.NombreRol %>
-                                        </option>
-                                    <% }) %>
-                                </select>
-                            </div>
-                            
-                            <!-- Contraseña (solo para nuevo) -->
-                            <% if (!usuario) { %>
-                                <div class="form-group">
-                                    <label>Contraseña *</label>
-                                    <input type="password" name="contraseña" class="form-control" 
-                                           minlength="6" required>
-                                </div>
-                            <% } %>
-                            
-                            <!-- Activo (solo editar) -->
-                            <% if (usuario) { %>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="checkbox" name="activo" 
-                                               <%= usuario.Activo ? 'checked' : '' %>>
-                                        Usuario activo
-                                    </label>
-                                </div>
-                            <% } %>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <a href="/admin/usuarios" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary">
-                            <%= usuario ? 'Guardar Cambios' : 'Crear Usuario' %>
-                        </button>
-                    </div>
-                </form>
-            </div>
+<%- include('../partials/header') %>
+
+<div class="form-container">
+    <div class="form-card">
+        <div class="card-header">
+            <h1><%= usuario ? '✏️ Editar Usuario' : '👤 Nuevo Usuario' %></h1>
+            <p><%= usuario ? 'Cambia los datos del usuario' : 'Registra un nuevo usuario' %></p>
         </div>
-    </main>
-</body>
-</html>
+        
+        <form action="<%= usuario ? '/admin/usuarios/editar/' + usuario.IdUsuario : '/admin/usuarios/nuevo' %>" 
+              method="POST">
+            
+            <div class="form-body">
+                <div class="form-grid">
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" name="nombre" class="form-control" 
+                               value="<%= usuario ? usuario.Nombre : '' %>" required>
+                    </div>
+                    
+                    <!-- Apellido Paterno -->
+                    <div class="form-group">
+                        <label>Apellido Paterno *</label>
+                        <input type="text" name="apellidoPaterno" class="form-control" 
+                               value="<%= usuario ? usuario.ApellidoPaterno : '' %>" required>
+                    </div>
+                    
+                    <!-- Apellido Materno -->
+                    <div class="form-group">
+                        <label>Apellido Materno</label>
+                        <input type="text" name="apellidoMaterno" class="form-control" 
+                               value="<%= usuario ? usuario.ApellidoMaterno : '' %>">
+                    </div>
+                    
+                    <!-- Correo -->
+                    <div class="form-group">
+                        <label>Correo *</label>
+                        <input type="email" name="correo" class="form-control" 
+                               value="<%= usuario ? usuario.Correo : '' %>" required>
+                    </div>
+                    
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" name="telefono" class="form-control" 
+                               value="<%= usuario ? usuario.Telefono : '' %>">
+                    </div>
+                    
+                    <!-- Ciudad -->
+                    <div class="form-group">
+                        <label>Ciudad</label>
+                        <input type="text" name="ciudad" class="form-control" 
+                               value="<%= usuario ? usuario.Ciudad : '' %>">
+                    </div>
+                    
+                    <!-- ROL - Importante! -->
+                    <div class="form-group">
+                        <label>Rol *</label>
+                        <select name="idRol" class="form-control" required>
+                            <option value="">-- Seleccionar --</option>
+                            <% roles.forEach(function(rol) { %>
+                                <option value="<%= rol.IdRol %>" 
+                                        <%= usuario && usuario.IdRol === rol.IdRol ? 'selected' : '' %>>
+                                    <%= rol.NombreRol %>
+                                </option>
+                            <% }); %>
+                        </select>
+                        <small style="color: #777;">
+                            - Admin: Acceso total<br>
+                            - Bibliotecario: Gestión de préstamos<br>
+                            - Socio: Usuario normal
+                        </small>
+                    </div>
+                    
+                    <!-- Contraseña (solo nuevo) -->
+                    <% if (!usuario) { %>
+                        <div class="form-group">
+                            <label>Contraseña *</label>
+                            <input type="password" name="contraseña" class="form-control" 
+                                   minlength="6" required>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Activo (solo editar) -->
+                    <% if (usuario) { %>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="activo" 
+                                       <%= usuario.Activo ? 'checked' : '' %>>
+                                Usuario activo
+                            </label>
+                            <small style="color: #777;">Si está desmarcado, el usuario no podrá iniciar sesión</small>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="/admin/usuarios" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    💾 <%= usuario ? 'Guardar Cambios' : 'Crear Usuario' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cambiar contraseña separado (solo editar) -->
+<% if (usuario) { %>
+<div class="form-container" style="margin-top: 20px;">
+    <div class="form-card">
+        <div class="card-header" style="background: #e74c3c;">
+            <h1>🔐 Cambiar Contraseña</h1>
+            <p>Restablecer contraseña del usuario</p>
+        </div>
+        
+        <form action="/admin/usuarios/password/<%= usuario.IdUsuario %>" method="POST">
+            <div class="form-body">
+                <div class="form-group">
+                    <label>Nueva Contraseña *</label>
+                    <input type="password" name="contraseña" class="form-control" 
+                           minlength="6" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">🔐 Cambiar Contraseña</button>
+            </div>
+        </form>
+    </div>
+</div>
+<% } %>
+
 <%- include('../partials/footer') %>

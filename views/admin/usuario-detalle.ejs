@@ -3,27 +3,26 @@
 <div class="breadcrumb">
     <a href="/admin/dashboard">Dashboard</a> / 
     <a href="/admin/usuarios">Usuarios</a> / 
-    <%= usuario.Nombre %> <%= usuario.ApellidoPaterno %>
+    <%= usuario.Nombre %>
 </div>
 
 <div class="libro-main">
-    <!-- Info del usuario -->
     <div class="libro-info">
         <h1><%= usuario.Nombre %> <%= usuario.ApellidoPaterno %> <%= usuario.ApellidoMaterno || '' %></h1>
         
         <div class="libro-meta">
-            <span><%= usuario.Correo %></span>
+            <span>Correo: <%= usuario.Correo %></span>
             <% if (usuario.Telefono) { %>
-                <span><%= usuario.Telefono %></span>
+                <span>Telefono: <%= usuario.Telefono %></span>
             <% } %>
             <% if (usuario.Ciudad) { %>
-                <span><%= usuario.Ciudad %></span>
+                <span> Ciudad: <%= usuario.Ciudad %></span>
             <% } %>
-            <span><%= usuario.NombreRol %></span>
         </div>
         
         <div class="libro-sinopsis">
-            <p><strong>Fecha de registro:</strong> <%= new Date(usuario.FechaRegistro).toLocaleDateString('es-MX') %></p>
+            <p><strong>Rol:</strong> <%= usuario.NombreRol %></p>
+            <p><strong>Registro:</strong> <%= new Date(usuario.FechaRegistro).toLocaleDateString('es-MX') %></p>
             <p>
                 <strong>Estado:</strong> 
                 <span class="badge <%= usuario.Activo ? 'disponible' : 'no-disponible' %>">
@@ -40,19 +39,16 @@
     </div>
 </div>
 
-<!-- Historial de préstamos -->
+<!-- Préstamos -->
 <div class="seccion">
-    <h2>Historial de Préstamos</h2>
-    
-    <% if (prestamos && prestamos.length > 0) { %>
+    <h2>Préstamos (<%= prestamos.length %>)</h2>
+    <% if (prestamos.length > 0) { %>
         <table>
             <thead>
                 <tr>
                     <th>Libro</th>
                     <th>Código</th>
-                    <th>Fecha Préstamo</th>
-                    <th>Fecha Esperada</th>
-                    <th>Fecha Devolución</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -62,32 +58,47 @@
                     <td><%= p.Titulo %></td>
                     <td><%= p.CodigoBarra %></td>
                     <td><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></td>
-                    <td><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></td>
                     <td>
-                        <% if (p.FechaDevolucionReal) { %>
-                            <%= new Date(p.FechaDevolucionReal).toLocaleDateString('es-MX') %>
-                        <% } else { %>
-                            <span style="color: #e74c3c;">Pendiente</span>
-                        <% } %>
-                    </td>
-                    <td>
-                        <% if (p.IdEstadoPrestamo === 1) { %>
-                            <span class="badge no-disponible">Activo</span>
-                        <% } else if (p.IdEstadoPrestamo === 2) { %>
-                            <span class="badge disponible">Devuelto</span>
-                        <% } else { %>
-                            <span class="badge">Vencido</span>
-                        <% } %>
+                        <span class="badge <%= p.IdEstadoPrestamo === 1 ? 'no-disponible' : 'disponible' %>">
+                            <%= p.IdEstadoPrestamo === 1 ? 'Activo' : 'Devuelto' %>
+                        </span>
                     </td>
                 </tr>
                 <% }); %>
             </tbody>
         </table>
     <% } else { %>
-        <div class="no-resultados">
-            <p>No hay préstamos registrados</p>
-        </div>
+        <p>Sin préstamos</p>
     <% } %>
 </div>
+
+<!-- Multas -->
+<% if (multas.length > 0) { %>
+<div class="seccion">
+    <h2>Multas (<%= multas.length %>)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Libro</th>
+                <th>Monto</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% multas.forEach(function(m) { %>
+            <tr>
+                <td><%= m.Titulo %></td>
+                <td>$<%= m.Monto %></td>
+                <td>
+                    <span class="badge <%= m.Pagado ? 'disponible' : 'no-disponible' %>">
+                        <%= m.Pagado ? 'Pagado' : 'Pendiente' %>
+                    </span>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<% } %>
 
 <%- include('../partials/footer') %>

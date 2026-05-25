@@ -1,40 +1,69 @@
 <%- include('../partials/header') %>
 
-<h1>Préstamos</h1>
+<div class="menu-admin">
+    <h1>Gestión de Préstamos</h1>
+    <a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
+</div>
 
-<a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
-
-<table>
-    <thead>
-        <tr>
-            <th>Libro</th>
-            <th>Cód. Barra</th>
-            <th>Usuario</th>
-            <th>Fecha Préstamo</th>
-            <th>Fecha Esperada</th>
-            <th>Estado</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% prestamos.forEach(function(p) { %>
-        <tr>
-            <td><%= p.Titulo %></td>
-            <td><%= p.CodigoBarra %></td>
-            <td><%= p.nombreUsuario %></td>
-            <td><%= p.FechaPrestamo %></td>
-            <td><%= p.FechaDevolucionEsperada %></td>
-            <td><%= p.IdEstadoPrestamo %></td>
-            <td>
-                <% if (p.IdEstadoPrestamo == 1) { %>
-                <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST" style="display:inline;">
-                    <button type="submit">Devolver</button>
-                </form>
-                <% } %>
-            </td>
-        </tr>
-        <% }); %>
-    </tbody>
-</table>
+<% if (prestamos && prestamos.length > 0) { %>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Libro</th>
+                <th>Código</th>
+                <th>Fecha Préstamo</th>
+                <th>Fecha Esperada</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% prestamos.forEach(function(p) { %>
+            <tr>
+                <td>#<%= p.IdPrestamo %></td>
+                <td><%= p.nombreUsuario %></td>
+                <td><strong><%= p.Titulo %></strong></td>
+                <td><%= p.CodigoBarra %></td>
+                <td><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></td>
+                <td><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></td>
+                <td>
+                    <% if (p.IdEstadoPrestamo === 1) { %>
+                        <span class="badge no-disponible">Activo</span>
+                    <% } else if (p.IdEstadoPrestamo === 2) { %>
+                        <span class="badge disponible">Devuelto</span>
+                    <% } else { %>
+                        <span class="badge">Vencido</span>
+                    <% } %>
+                </td>
+                <td>
+                    <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn btn-small">Ver</a>
+                    
+                    <% if (p.IdEstadoPrestamo === 1) { %>
+                        <!-- Botón Devolver -->
+                        <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-small btn-primary" onclick="return confirm('¿Confirmar devolución?')">Confirmar Devolución</button>
+                            
+                        </form>
+                        
+                        <!-- Botón Renovar -->
+                        <form action="/admin/prestamos/renovar/<%= p.IdPrestamo %>" method="POST" style="display: inline;">
+                            <input type="hidden" name="dias" value="10">
+                            <button type="submit" class="btn btn-small btn-secondary" onclick="return confirm('¿Renovar por 10 días?')">Renovar</button>
+                        </form>
+                    <% } %>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+<% } else { %>
+    <div class="no-resultados">
+        <p>No hay préstamos registrados</p>
+        <a href="/admin/prestamos/nuevo" class="btn btn-primary">Realizar primer préstamo</a>
+    </div>
+<% } %>
 
 <%- include('../partials/footer') %>
+

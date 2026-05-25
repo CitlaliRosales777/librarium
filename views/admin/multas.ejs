@@ -1,0 +1,89 @@
+<%- include('../partials/header') %>
+
+<div class="menu-admin">
+    <h1>⚠️ Gestión de Multas</h1>
+</div>
+
+<% 
+var totalPendiente = 0;
+var totalPagado = 0;
+multas.forEach(function(m) { 
+    if (m.Pagado) { 
+        totalPagado += parseFloat(m.Monto); 
+    } else { 
+        totalPendiente += parseFloat(m.Monto); 
+    } 
+}); 
+%>
+
+<div class="dashboard">
+    <div class="card">
+        <h3>💰 Total Pendiente</h3>
+        <div class="num">$<%= totalPendiente.toFixed(2) %></div>
+    </div>
+    <div class="card">
+        <h3>✅ Total Pagado</h3>
+        <div class="num">$<%= totalPagado.toFixed(2) %></div>
+    </div>
+    <div class="card">
+        <h3>📊 Total Multas</h3>
+        <div class="num"><%= multas.length %></div>
+    </div>
+</div>
+
+<% if (multas && multas.length > 0) { %>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Libro</th>
+                <th>Fecha Préstamo</th>
+                <th>Fecha Devolución</th>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% multas.forEach(function(m) { %>
+            <tr>
+                <td>#<%= m.IdMulta %></td>
+                <td><%= m.nombreUsuario %></td>
+                <td><strong><%= m.Titulo %></strong></td>
+                <td><%= new Date(m.FechaPrestamo).toLocaleDateString('es-MX') %></td>
+                <td><%= m.FechaDevolucionReal ? new Date(m.FechaDevolucionReal).toLocaleDateString('es-MX') : 'Pendiente' %></td>
+                <td>
+                    <% if (m.Pagado) { %>
+                        <strong style="color: #27ae60;">$<%= m.Monto.toFixed(2) %></strong>
+                    <% } else { %>
+                        <strong style="color: #e74c3c;">$<%= m.Monto.toFixed(2) %></strong>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (m.Pagado) { %>
+                        <span class="badge disponible">✅ Pagado</span>
+                    <% } else { %>
+                        <span class="badge no-disponible">⚠️ Pendiente</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (!m.Pagado) { %>
+                        <form action="/admin/multas/pagar/<%= m.IdMulta %>" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Confirmar pago?')">💰 Pagar</button>
+                        </form>
+                    <% } else { %>
+                        <span style="color: #777; font-size: 0.85rem;">Pagado: <%= new Date(m.FechaPago).toLocaleDateString('es-MX') %></span>
+                    <% } %>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+<% } else { %>
+    <div class="no-resultados">
+        <p>✅ No hay multas registradas</p>
+    </div>
+<% } %>
+
+<%- include('../partials/footer') %>
