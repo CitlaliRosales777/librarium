@@ -1,5 +1,33 @@
 <%- include('../partials/header') %>
 
+<style>
+    .search-wrapper { position: relative; margin-bottom: 8px; }
+    .search-input {
+        width: 100%; padding: 12px 16px;
+        border: 2px solid #989D8F; border-radius: 6px; font-size: 1rem;
+    }
+    .search-input:focus { outline: none; border-color: #0E2B04; }
+    .results-list {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: white; border: 2px solid #0E2B04;
+        border-top: none; border-radius: 0 0 6px 6px;
+        max-height: 250px; overflow-y: auto; z-index: 100; display: none;
+    }
+    .results-list.show { display: block; }
+    .result-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #C5CDC3; }
+    .result-item:hover { background: #C5CDC3; }
+    .result-item:last-child { border-bottom: none; }
+    .result-name { font-weight: 600; color: #0E2B04; }
+    .result-detail { font-size: 0.85rem; color: #766F5F; }
+    .selected-tag {
+        display: inline-flex; align-items: center;
+        background: #364B26; color: white;
+        padding: 6px 12px; border-radius: 20px;
+        margin-top: 8px; font-size: 0.9rem;
+    }
+    .selected-tag .close { margin-left: 8px; cursor: pointer; }
+</style>
+
 <div class="form-container">
     <div class="form-card">
         <div class="card-header">
@@ -9,49 +37,150 @@
         
         <form action="/admin/prestamos/nuevo" method="POST">
             <div class="form-body">
-                <!-- Usuario -->
                 <div class="form-group">
                     <label>Usuario (Socio) *</label>
-                    <select name="IdUsuario" class="form-control" required>
-                        <option value="">-- Seleccionar Usuario --</option>
-                        <% usuarios.forEach(function(u) { %>
-                            <option value="<%= u.IdUsuario %>">
-                                <%= u.Nombre %> <%= u.ApellidoPaterno %> (<%= u.Correo %>)
-                            </option>
-                        <% }); %>
-                    </select>
+                    <div class="search-wrapper">
+                        <input type="text" id="buscarUsuario" class="search-input" placeholder="Buscar por nombre o correo..." autocomplete="off">
+                        <div class="results-list" id="resultadosUsuario"></div>
+                    </div>
+                    <div id="seleccionUsuario" style="display: none;">
+                        <span class="selected-tag" id="tagUsuario">
+                            <span id="nombreUsuario"></span>
+                            <span class="close" onclick="limpiarUsuario()">✕</span>
+                        </span>
+                    </div>
+                    <input type="hidden" name="IdUsuario" id="inputIdUsuario" required>
                 </div>
                 
-                <!-- Ejemplar -->
                 <div class="form-group">
                     <label>Libro *</label>
-                    <select name="IdEjemplar" class="form-control" required>
-                        <option value="">-- Seleccionar Libro --</option>
-                        <% ejemplares.forEach(function(e) { %>
-                            <option value="<%= e.IdEjemplar %>">
-                                <%= e.Titulo %> - <%= e.CodigoBarra %>
-                            </option>
-                        <% }); %>
-                    </select>
+                    <div class="search-wrapper">
+                        <input type="text" id="buscarLibro" class="search-input" placeholder="Buscar por título o código..." autocomplete="off">
+                        <div class="results-list" id="resultadosLibro"></div>
+                    </div>
+                    <div id="seleccionLibro" style="display: none;">
+                        <span class="selected-tag" id="tagLibro">
+                            <span id="nombreLibro"></span>
+                            <span class="close" onclick="limpiarLibro()">✕</span>
+                        </span>
+                    </div>
+                    <input type="hidden" name="IdEjemplar" id="inputIdLibro" required>
                 </div>
                 
-                <!-- Días de préstamo -->
                 <div class="form-group">
                     <label>Días de Préstamo</label>
-                    <input type="number" name="dias" class="form-control" 
-                           value="15" min="1" max="30">
-                    <small style="color: #777;">Valor por defecto: 15 días</small>
+                    <input type="number" name="dias" class="form-control" value="15" min="1" max="30">
                 </div>
             </div>
             
             <div class="form-actions">
                 <a href="/admin/prestamos" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-primary">
-                    Realizar Préstamo
-                </button>
+                <button type="submit" class="btn btn-primary">Realizar Préstamo</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    // ✅ DATOS DESDE EL SERVIDOR - FORMA SIMPLE
+    var usuarios = [];
+    <% usuarios.forEach(function(u) { %>
+        usuarios.push({id: <%= u.IdUsuario %>, nombre: '<%= u.Nombre %> <%= u.ApellidoPaterno %>', correo: '<%= u.Correo %>'});
+    <% }); %>
+    
+    var libros = [];
+    <% ejemplares.forEach(function(e) { %>
+        libros.push({id: <%= e.IdEjemplar %>, titulo: '<%= e.Titulo.replace(/'/g, "\\'") %>', codigo: '<%= e.CodigoBarra %>'});
+    <% }); %>
+
+    // BUSCADOR USUARIO
+    var inputUsuario = document.getElementById('buscarUsuario');
+    var resultadosUsuario = document.getElementById('resultadosUsuario');
+    var tagUsuario = document.getElementById('seleccionUsuario');
+    var inputIdUsuario = document.getElementById('inputIdUsuario');
+
+    inputUsuario.addEventListener('input', function() {
+        filtrar(this.value, usuarios, resultadosUsuario, 'usuario');
+    });
+    inputUsuario.addEventListener('focus', function() {
+        if (this.value) filtrar(this.value, usuarios, resultadosUsuario, 'usuario');
+        resultadosUsuario.classList.add('show');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#buscarUsuario') && !e.target.closest('#resultadosUsuario')) {
+            resultadosUsuario.classList.remove('show');
+        }
+    });
+
+    function filtrar(texto, datos, contenedor, tipo) {
+        if (!texto) { contenedor.innerHTML = ''; return; }
+        var filtro = texto.toLowerCase();
+        var encontrados = datos.filter(function(d) {
+            if (tipo === 'usuario') {
+                return d.nombre.toLowerCase().indexOf(filtro) !== -1 || d.correo.toLowerCase().indexOf(filtro) !== -1;
+            } else {
+                return d.titulo.toLowerCase().indexOf(filtro) !== -1 || d.codigo.toLowerCase().indexOf(filtro) !== -1;
+            }
+        });
+        
+        contenedor.innerHTML = '';
+        if (encontrados.length === 0) {
+            contenedor.innerHTML = '<div class="result-item">Sin resultados</div>';
+        } else {
+            encontrados.forEach(function(d) {
+                var div = document.createElement('div');
+                div.className = 'result-item';
+                if (tipo === 'usuario') {
+                    div.innerHTML = '<div class="result-name">' + d.nombre + '</div><div class="result-detail">' + d.correo + '</div>';
+                    div.onclick = function() { seleccionarUsuario(d); };
+                } else {
+                    div.innerHTML = '<div class="result-name">📚 ' + d.titulo + '</div><div class="result-detail">📖 ' + d.codigo + '</div>';
+                    div.onclick = function() { seleccionarLibro(d); };
+                }
+                contenedor.appendChild(div);
+            });
+        }
+        contenedor.classList.add('show');
+    }
+
+    function seleccionarUsuario(u) {
+        document.getElementById('nombreUsuario').textContent = u.nombre;
+        tagUsuario.style.display = 'inline-flex';
+        inputIdUsuario.value = u.id;
+        inputUsuario.value = '';
+        resultadosUsuario.classList.remove('show');
+    }
+    function limpiarUsuario() { tagUsuario.style.display = 'none'; inputIdUsuario.value = ''; }
+
+    // BUSCADOR LIBRO
+    var inputLibro = document.getElementById('buscarLibro');
+    var resultadosLibro = document.getElementById('resultadosLibro');
+    var tagLibro = document.getElementById('seleccionLibro');
+    var inputIdLibro = document.getElementById('inputIdLibro');
+
+    inputLibro.addEventListener('input', function() {
+        filtrar(this.value, libros, resultadosLibro, 'libro');
+    });
+    inputLibro.addEventListener('focus', function() {
+        if (this.value) filtrar(this.value, libros, resultadosLibro, 'libro');
+        resultadosLibro.classList.add('show');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#buscarLibro') && !e.target.closest('#resultadosLibro')) {
+            resultadosLibro.classList.remove('show');
+        }
+    });
+
+    function seleccionarLibro(l) {
+        document.getElementById('nombreLibro').textContent = l.titulo;
+        tagLibro.style.display = 'inline-flex';
+        inputIdLibro.value = l.id;
+        inputLibro.value = '';
+        resultadosLibro.classList.remove('show');
+    }
+    function limpiarLibro() { tagLibro.style.display = 'none'; inputIdLibro.value = ''; }
+</script>
 
 <%- include('../partials/footer') %>

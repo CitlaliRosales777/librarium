@@ -1,50 +1,214 @@
 <%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
 
-<h1>Mis Reservas</h1>
+<style>
+    .user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .user-header h1 { color: #0E2B04; margin: 0; }
+    .menu-user { display: flex; gap: 0.5rem; }
+    .menu-user a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .menu-user a:hover { background: #0E2B04; }
+    .menu-user a.active { background: #0E2B04; }
+    
+    .reservas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    .reserva-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .reserva-card.activa {
+        border-left: 4px solid #27ae60;
+    }
+    .reserva-card.expirada {
+        border-left: 4px solid #e74c3c;
+    }
+    .reserva-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 1.25rem 1.5rem;
+        background: #C5CDC3;
+    }
+    .reserva-card-header h3 {
+        margin: 0;
+        color: #0E2B04;
+        font-size: 1.1rem;
+    }
+    .reserva-card-header .codigo {
+        background: #0E2B04;
+        color: #C5CDC3;
+        padding: 0.3rem 0.75rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.85rem;
+    }
+    .reserva-card-body { padding: 1.5rem; }
+    .reserva-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    .reserva-info-item label {
+        display: block;
+        font-size: 0.8rem;
+        color: #766F5F;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .reserva-info-item span {
+        font-size: 1rem;
+        color: #0E2B04;
+        font-weight: 500;
+    }
+    .reserva-info-item.activa span { color: #27ae60; }
+    .reserva-info-item.expirada span { color: #e74c3c; }
+    
+    .badge-estado {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .badge-estado.activa { background: #27ae60; color: white; }
+    .badge-estado.expirada { background: #e74c3c; color: white; }
+    
+    .reserva-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .btn-cancelar {
+        padding: 0.5rem 1rem;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .btn-cancelar:hover { background: #c0392b; }
+    .btn-detalle {
+        padding: 0.5rem 1rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .btn-detalle:hover { background: #0E2B04; }
+    
+    .no-resultados {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 10px;
+    }
+    .no-resultados p { font-size: 1.2rem; color: #766F5F; }
+    .contador { margin-bottom: 1.5rem; color: #766F5F; }
 
+    @media (max-width: 768px) {
+        .reserva-info { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="user-header">
+    <h1>🔔 Mis Reservas</h1>
+    <div class="menu-user">
+        <a href="/user/biblioteca">Biblioteca</a>
+        <a href="/buscar">Buscar</a>
+        <a href="/user/mis-prestamos">Mis Préstamos</a>
+        <a href="/user/reservas" class="active">Mis Reservas</a>
+    </div>
+</div>
+
+<% 
+var reservasActivas = 0;
+var reservasExpiradas = 0;
+if (reservas && reservas.length > 0) {
+    var hoy = new Date();
+    reservas.forEach(function(r) {
+        var expira = new Date(r.FechaExpiracion);
+        if (expira >= hoy) reservasActivas++;
+        else reservasExpiradas++;
+    });
+}
+%>
+
+<!-- Contador -->
 <% if (reservas && reservas.length > 0) { %>
-    <table>
-        <thead>
-            <tr>
-                <th>Libro</th>
-                <th>Código</th>
-                <th>Fecha Reserva</th>
-                <th>Expira</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% reservas.forEach(function(r) { %>
-            <tr>
-                <td><strong><%= r.Titulo %></strong></td>
-                <td><%= r.CodigoBarra %></td>
-                <td><%= new Date(r.FechaReserva).toLocaleDateString('es-MX') %></td>
-                <td><%= new Date(r.FechaExpiracion).toLocaleDateString('es-MX') %></td>
-                <td>
-                    <% var hoy = new Date(); %>
-                    <% var expira = new Date(r.FechaExpiracion); %>
-                    <% if (expira >= hoy) { %>
-                        <span class="badge">Activa</span>
-                    <% } else { %>
-                        <span class="badge no-disponible">Expirada</span>
-                    <% } %>
-                </td>
-                <td>
-                    <% if (expira >= hoy) { %>
+    <div class="contador">
+        <span>Tienes <%= reservasActivas %> reserva(s) activa(s) y <%= reservasExpiradas %> expirada(s)</span>
+    </div>
+    
+    <div class="reservas-grid">
+        <% reservas.forEach(function(r) { %>
+            <%
+            var hoy = new Date();
+            var expira = new Date(r.FechaExpiracion);
+            var isActiva = expira >= hoy;
+            %>
+            <div class="reserva-card <%= isActiva ? 'activa' : 'expirada' %>">
+                <div class="reserva-card-header">
+                    <h3><%= r.Titulo %></h3>
+                    <span class="codigo"><%= r.CodigoBarra %></span>
+                </div>
+                <div class="reserva-card-body">
+                    <div class="reserva-info">
+                        <div class="reserva-info-item">
+                            <label>Fecha Reserva</label>
+                            <span><%= new Date(r.FechaReserva).toLocaleDateString('es-MX') %></span>
+                        </div>
+                        <div class="reserva-info-item <%= isActiva ? 'activa' : 'expirada' %>">
+                            <label>Expira</label>
+                            <span><%= new Date(r.FechaExpiracion).toLocaleDateString('es-MX') %></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="reserva-card-footer">
+                    <span class="badge-estado <%= isActiva ? 'activa' : 'expirada' %>">
+                        <%= isActiva ? '✓ Activa' : '✕ Expirada' %>
+                    </span>
+                    <% if (isActiva) { %>
                         <form action="/user/reservas/cancelar/<%= r.IdReserva %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Cancelar reserva?')">Cancelar</button>
+                            <button type="submit" class="btn-cancelar" onclick="return confirm('¿Cancelar esta reserva?')">
+                                Cancelar
+                            </button>
                         </form>
+                    <% } else { %>
+                        <a href="/user/libro/<%= r.IdLibro %>" class="btn-detalle">Ver libro</a>
                     <% } %>
-                </td>
-            </tr>
-            <% }); %>
-        </tbody>
-    </table>
+                </div>
+            </div>
+        <% }); %>
+    </div>
 <% } else { %>
     <div class="no-resultados">
+        <p style="font-size: 3rem;">🔔</p>
         <p>No tienes reservas</p>
-        <a href="/user/biblioteca" class="btn btn-primary">Ver Biblioteca</a>
+        <a href="/user/biblioteca" class="btn btn-primary" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #364B26; color: white; text-decoration: none; border-radius: 6px;">
+            Ver Biblioteca
+        </a>
     </div>
 <% } %>
 

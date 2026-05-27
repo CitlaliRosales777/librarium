@@ -1,28 +1,297 @@
 <%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
 
-<h1>Mis Préstamos</h1>
+<style>
+    .mis-prestamos-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .mis-prestamos-header h1 {
+        color: #0E2B04;
+        margin: 0;
+    }
+    .menu-user {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .menu-user a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    .menu-user a:hover {
+        background: #0E2B04;
+    }
+    .menu-user a.active {
+        background: #0E2B04;
+    }
+    
+    .prestamo-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .prestamo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(14, 43, 4, 0.15);
+    }
+    .prestamo-card.vencido {
+        border-left: 4px solid #e74c3c;
+    }
+    .prestamo-card.activo {
+        border-left: 4px solid #e67e22;
+    }
+    .prestamo-card.devuelto {
+        border-left: 4px solid #27ae60;
+    }
+    .prestamo-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 1.25rem 1.5rem;
+        background: #C5CDC3;
+    }
+    .prestamo-card-header h3 {
+        margin: 0;
+        color: #0E2B04;
+        font-size: 1.1rem;
+    }
+    .prestamo-card-header .codigo {
+        background: #0E2B04;
+        color: #C5CDC3;
+        padding: 0.3rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-family: monospace;
+    }
+    .prestamo-card-body {
+        padding: 1.5rem;
+    }
+    .prestamo-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .prestamo-info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .prestamo-info-item label {
+        font-size: 0.8rem;
+        color: #766F5F;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .prestamo-info-item span {
+        font-size: 1rem;
+        color: #0E2B04;
+        font-weight: 500;
+    }
+    .prestamo-info-item.warning span {
+        color: #e67e22;
+    }
+    .prestamo-info-item.danger span {
+        color: #e74c3c;
+    }
+    .prestamo-info-item.success span {
+        color: #27ae60;
+    }
+    
+    .badge-estado {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .badge-estado.activo {
+        background: #f39c12;
+        color: white;
+    }
+    .badge-estado.vencido {
+        background: #e74c3c;
+        color: white;
+    }
+    .badge-estado.devuelto {
+        background: #27ae60;
+        color: white;
+    }
+    
+    .prestamo-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .prestamo-card-footer .dias {
+        font-size: 0.9rem;
+        color: #766F5F;
+    }
+    .prestamo-card-footer .dias strong {
+        color: #0E2B04;
+    }
+    
+    .no-prestamos {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .no-prestamos p {
+        font-size: 1.2rem;
+        color: #766F5F;
+    }
+    .no-prestamos .icono {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .contador {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .contador-item {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(14, 43, 4, 0.1);
+    }
+    .contador-item strong {
+        display: block;
+        font-size: 1.5rem;
+        color: #0E2B04;
+    }
+    .contador-item span {
+        font-size: 0.85rem;
+        color: #766F5F;
+    }
+    
+    @media (max-width: 768px) {
+        .mis-prestamos-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .prestamo-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
-<table>
-    <thead>
-        <tr>
-            <th>Libro</th>
-            <th>Cód. Barra</th>
-            <th>Fecha Préstamo</th>
-            <th>Fecha Esperada</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% prestamos.forEach(function(p) { %>
-        <tr>
-            <td><%= p.Titulo %></td>
-            <td><%= p.CodigoBarra %></td>
-            <td><%= p.FechaPrestamo %></td>
-            <td><%= p.FechaDevolucionEsperada %></td>
-            <td><%= p.IdEstadoPrestamo == 1 ? 'Activo' : 'Devuelto' %></td>
-        </tr>
-        <% }); %>
-    </tbody>
-</table>
+<div class="mis-prestamos-header">
+    <h1>Mis Préstamos</h1>
+    <div class="menu-user">
+        <a href="/user/biblioteca">Biblioteca</a>
+        <a href="/user/buscar">Buscar</a>
+        <a href="/user/mis-prestamos" class="active">Mis Préstamos</a>
+        <a href="/user/reservas">Mis Reservas</a>
+    </div>
+</div>
+
+<!-- Contador -->
+<% 
+var countActivos = 0;
+var countVencidos = 0;
+var countDevueltos = 0;
+prestamos.forEach(function(p) {
+    if (p.IdEstadoPrestamo === 1) {
+        var hoy = new Date();
+        var espera = new Date(p.FechaDevolucionEsperada);
+        if (hoy > espera) countVencidos++;
+        else countActivos++;
+    } else {
+        countDevueltos++;
+    }
+});
+%>
+
+
+<!-- Lista de préstamos -->
+<% if (prestamos && prestamos.length > 0) { %>
+    <% prestamos.forEach(function(p) { %>
+        <%
+        var estado = 'devuelto';
+        var claseEstado = 'devuelto';
+        var badgeTexto = ' Devuelto';
+        
+        var hoy = new Date();
+        var espera = new Date(p.FechaDevolucionEsperada);
+        
+        if (p.IdEstadoPrestamo === 1) {
+            if (hoy > espera) {
+                estado = 'vencido';
+                claseEstado = 'vencido';
+                badgeTexto = 'Vencido';
+            } else {
+                estado = 'activo';
+                claseEstado = 'activo';
+                badgeTexto = 'Activo';
+            }
+        }
+        
+        // Calcular días restantes o días de retraso
+        var diff = Math.ceil((espera - hoy) / (1000 * 60 * 60 * 24));
+        var diasTexto = '';
+        if (estado === 'activo') {
+            diasTexto = diff + ' días restantes';
+        } else if (estado === 'vencido') {
+            diasTexto = Math.abs(diff) + ' días de retraso';
+        } else {
+            diasTexto = 'Devuelto a tiempo';
+        }
+        %>
+        
+        <div class="prestamo-card <%= claseEstado %>">
+            <div class="prestamo-card-header">
+                <h3><%= p.Titulo %></h3>
+                <span class="codigo"><%= p.CodigoBarra %></span>
+            </div>
+            <div class="prestamo-card-body">
+                <div class="prestamo-info">
+                    <div class="prestamo-info-item">
+                        <label>Fecha Préstamo</label>
+                        <span><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></span>
+                    </div>
+                    <div class="prestamo-info-item <%= estado === 'vencido' ? 'danger' : (estado === 'activo' ? 'warning' : 'success') %>">
+                        <label>Fecha Límite</label>
+                        <span><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></span>
+                    </div>
+                    <% if (p.FechaDevolucionReal) { %>
+                        <div class="prestamo-info-item success">
+                            <label>Fecha Devolución</label>
+                            <span><%= new Date(p.FechaDevolucionReal).toLocaleDateString('es-MX') %></span>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            <div class="prestamo-card-footer">
+                <span class="badge-estado <%= claseEstado %>"><%= badgeTexto %></span>
+                <span class="dias"><strong><%= diasTexto %></strong></span>
+            </div>
+        </div>
+    <% }); %>
+<% } else { %>
+    <div class="no-prestamos">
+        <div class="icono"></div>
+        <p>No tienes préstamos realizados</p>
+        <a href="/user/biblioteca" class="btn btn-primary">Ver Biblioteca</a>
+    </div>
+<% } %>
 
 <%- include('../partials/footer') %>

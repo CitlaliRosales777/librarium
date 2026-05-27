@@ -1,0 +1,219 @@
+<%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
+
+<style>
+    .detalle-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .detalle-header h1 { color: #0E2B04; margin: 0; }
+    .menu-user { display: flex; gap: 0.5rem; }
+    .menu-user a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .menu-user a:hover { background: #0E2B04; }
+    
+    .libro-detalle-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .libro-portada {
+        background: #C5CDC3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    .libro-portada .icono-grande { font-size: 8rem; color: #364B26; }
+    .libro-info { padding: 2rem; }
+    .libro-titulo { font-size: 1.5rem; color: #0E2B04; margin-bottom: 0.5rem; }
+    .libro-meta { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .libro-meta span { background: #C5CDC3; padding: 0.4rem 0.75rem; border-radius: 20px; font-size: 0.85rem; color: #0E2B04; }
+    .libro-sinopsis { margin: 1.5rem 0; line-height: 1.8; color: #766F5F; }
+    .libro-detalles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0; }
+    .libro-detalles-item label { display: block; font-size: 0.8rem; color: #766F5F; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .libro-detalles-item span { font-size: 1rem; color: #0E2B04; font-weight: 500; }
+    
+    .autores-section { margin: 1.5rem 0; }
+    .autores-section h3 { color: #0E2B04; margin-bottom: 0.75rem; }
+    .autor-tag { display: inline-block; background: #364B26; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 0.5rem; margin-bottom: 0.5rem; }
+    
+    .ejemplares-section { margin: 2rem 0; padding-top: 2rem; border-top: 1px solid #C5CDC3; }
+    .ejemplares-section h3 { color: #0E2B04; margin-bottom: 1rem; }
+    .ejemplar-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.75rem; }
+    .ejemplar-info { display: flex; align-items: center; gap: 1rem; }
+    .ejemplar-info .codigo { font-family: monospace; background: #364B26; color: white; padding: 0.3rem 0.75rem; border-radius: 4px; }
+    .badge { padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+    .badge.disponible { background: #27ae60; color: white; }
+    .badge.no-disponible { background: #e74c3c; color: white; }
+    
+    .acciones { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #C5CDC3; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-prestamo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    .btn-prestamo:hover { background: #1e8449; }
+    .btn-reservar {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: #e67e22;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+    .btn-reservar:hover { background: #d35400; }
+    .btn-volver {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .btn-volver:hover { background: #0E2B04; }
+
+    @media (max-width: 768px) {
+        .libro-detalle-container { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="detalle-header">
+    <h1>Detalles del Libro</h1>
+    <div class="menu-user">
+        <a href="/user/biblioteca">Biblioteca</a>
+        <a href="/buscar">Buscar</a>
+        <a href="/user/mis-prestamos">Mis Préstamos</a>
+        <a href="/user/reservas">Mis Reservas</a>
+    </div>
+</div>
+
+<%
+var hayDisponibles = false;
+var ejemplaresActivos = [];
+if (ejemplares && ejemplares.length > 0) {
+    hayDisponibles = ejemplares.some(function(e) { return e.Activo === 1; });
+    ejemplaresActivos = ejemplares.filter(function(e) { return e.Activo === 1; });
+}
+%>
+
+<div class="libro-detalle-container">
+    <div class="libro-portada">
+        <span class="icono-grande"></span>
+    </div>
+    
+    <div class="libro-info">
+        <h2 class="libro-titulo"><%= libro.Titulo %></h2>
+        
+        <div class="libro-meta">
+            <% if (libro.AnoPublicacion) { %><span><%= libro.AnoPublicacion %></span><% } %>
+            <% if (libro.NombreGenero) { %><span><%= libro.NombreGenero %></span><% } %>
+            <% if (libro.NombreEditorial) { %><span><%= libro.NombreEditorial %></span><% } %>
+        </div>
+        
+        <div class="libro-detalles">
+            <div class="libro-detalles-item">
+                <label>ISBN</label>
+                <span><%= libro.ISBN || 'No disponible' %></span>
+            </div>
+            <div class="libro-detalles-item">
+                <label>Ejemplares Totales</label>
+                <span><%= ejemplares ? ejemplares.length : 0 %></span>
+            </div>
+            <div class="libro-detalles-item">
+                <label>Disponibles</label>
+                <span style="<%= hayDisponibles ? 'color: #27ae60;' : 'color: #e74c3c;' %>">
+                    <%= hayDisponibles ? 'Sí' : 'No' %>
+                </span>
+            </div>
+        </div>
+        
+        <% if (libro.Sinopsis) { %>
+            <div class="libro-sinopsis">
+                <h3>Sinopsis</h3>
+                <p><%= libro.Sinopsis %></p>
+            </div>
+        <% } %>
+        
+        <% if (autores && autores.length > 0) { %>
+            <div class="autores-section">
+                <h3>Autores</h3>
+                <% autores.forEach(function(a) { %>
+                    <span class="autor-tag"><%= a.Nombre %> <%= a.ApellidoPaterno %> <%= a.ApellidoMaterno || '' %></span>
+                <% }); %>
+            </div>
+        <% } %>
+        
+        <% if (ejemplares && ejemplares.length > 0) { %>
+            <div class="ejemplares-section">
+                <h3>Ejemplares</h3>
+                <% ejemplares.forEach(function(e) { %>
+                    <div class="ejemplar-item">
+                        <div class="ejemplar-info">
+                            <span class="codigo"><%= e.CodigoBarra %></span>
+                            <span><%= e.NombreEstado || 'Bueno' %></span>
+                        </div>
+                        <% if (e.Activo === 1) { %>
+                            <span class="badge disponible">✓ Disponible</span>
+                        <% } else { %>
+                            <span class="badge no-disponible">✕ Prestado</span>
+                        <% } %>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+        
+        <div class="acciones">
+            <% if (hayDisponibles) { %>
+                <!-- Si hay ejemplares disponibles, solicitar préstamo -->
+                <button class="btn-prestamo" onclick="confirmarPrestamo()">
+                    Solicitar Préstamo
+                </button>
+                <form id="formPrestamo" action="/user/prestamo" method="POST" style="display: none;">
+                    <input type="hidden" name="IdEjemplar" value="<%= ejemplaresActivos[0] ? ejemplaresActivos[0].IdEjemplar : '' %>">
+                </form>
+            <% } else { %>
+                <!-- Si está agotado, ir a página de confirmación de reserva -->
+                <a href="/user/reservar/confirmar/<%= ejemplares && ejemplares[0] ? ejemplares[0].IdEjemplar : '' %>" class="btn-reservar">
+                    Reservar
+                </a>
+            <% } %>
+            
+            <a href="/user/biblioteca" class="btn-volver">← Volver</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmarPrestamo() {
+        if (confirm('¿Quieres solicitar este libro en préstamo?')) {
+            document.getElementById('formPrestamo').submit();
+        }
+    }
+</script>
+
+<%- include('../partials/footer') %>

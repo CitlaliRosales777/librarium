@@ -1,71 +1,366 @@
 <%- include('../partials/header') %>
-    <%- include('../partials/atajos') %>
 
-<div class="menu-admin">
-    <h1>Gestión de Préstamos</h1>
-    <a href="/admin/prestamos/nuevo" class="btn btn-primary">Nuevo Préstamo</a>
+<style>
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .admin-header h1 { color: #0E2B04; margin: 0; }
+    .menu-admin { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .menu-admin a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .menu-admin a:hover { background: #0E2B04; }
+    
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #C5CDC3;
+    }
+    .tab {
+        padding: 1rem 1.5rem;
+        background: transparent;
+        color: #766F5F;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+    .tab:hover { color: #0E2B04; }
+    .tab.active {
+        color: #0E2B04;
+        border-bottom-color: #0E2B04;
+    }
+    .tab-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        padding: 0 8px;
+        background: #C5CDC3;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+    .tab.active .tab-count { background: #0E2B04; color: white; }
+    
+    /* Contenido */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* Grid de préstamos */
+    .prestamos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+    .prestamo-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .prestamo-card.activo { border-left: 4px solid #e67e22; }
+    .prestamo-card.vencido { border-left: 4px solid #e74c3c; }
+    .prestamo-card.devuelto { border-left: 4px solid #27ae60; }
+    
+    .prestamo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 1.25rem 1.5rem;
+        background: #C5CDC3;
+    }
+    .prestamo-header h3 {
+        margin: 0;
+        color: #0E2B04;
+        font-size: 1.1rem;
+    }
+    .prestamo-header .libro-titulo {
+        font-size: 0.9rem;
+        color: #0E2B04;
+        margin-top: 0.25rem;
+    }
+    .prestamo-header .codigo {
+        background: #0E2B04;
+        color: #C5CDC3;
+        padding: 0.3rem 0.75rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.85rem;
+    }
+    .prestamo-body { padding: 1.5rem; }
+    .prestamo-info {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    .prestamo-info-item label {
+        display: block;
+        font-size: 0.8rem;
+        color: #766F5F;
+        text-transform: uppercase;
+    }
+    .prestamo-info-item span {
+        font-size: 1rem;
+        color: #0E2B04;
+        font-weight: 500;
+    }
+    .prestamo-info-item.warning span { color: #e67e22; }
+    .prestamo-info-item.danger span { color: #e74c3c; }
+    .prestamo-info-item.success span { color: #27ae60; }
+    
+    .badge-estado {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .badge-estado.activo { background: #e67e22; color: white; }
+    .badge-estado.vencido { background: #e74c3c; color: white; }
+    .badge-estado.devuelto { background: #27ae60; color: white; }
+    
+    .prestamo-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    .btn-devolver { background: #27ae60; color: white; }
+    .btn-devolver:hover { background: #1e8449; }
+    .btn-renovar { background: #e67e22; color: white; }
+    .btn-renovar:hover { background: #d35400; }
+    .btn-ver { background: #364B26; color: white; text-decoration: none; display: inline-block; }
+    .btn-ver:hover { background: #0E2B04; }
+    
+    .no-resultados {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 10px;
+    }
+    .no-resultados p { font-size: 1.2rem; color: #766F5F; }
+
+    @media (max-width: 768px) {
+        .prestamos-grid { grid-template-columns: 1fr; }
+        .prestamo-info { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="admin-header">
+    <h1>📖 Gestión de Préstamos</h1>
+    <div class="menu-admin">
+        <a href="/admin/prestamos/nuevo">➕ Nuevo</a>
+        <a href="/admin/usuarios">👤 Usuarios</a>
+        <a href="/admin/libros">📚 Libros</a>
+        <a href="/admin/dashboard">🏠 Inicio</a>
+    </div>
 </div>
 
-<% if (prestamos && prestamos.length > 0) { %>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Libro</th>
-                <th>Código</th>
-                <th>Fecha Préstamo</th>
-                <th>Fecha Esperada</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
+<%
+// Separar préstamos por estado
+var prestamosActivos = [];
+var prestamosVencidos = [];
+var prestamosDevueltos = [];
+var hoy = new Date();
+
+if (prestamos && prestamos.length > 0) {
+    prestamos.forEach(function(p) {
+        var fechaEsperada = new Date(p.FechaDevolucionEsperada);
         
-        <tbody>
-            <% prestamos.forEach(function(p) { %>
-            <tr>
-                <td>#<%= p.IdPrestamo %></td>
-                <td><%= p.nombreUsuario %></td>
-                <td><strong><%= p.Titulo %></strong></td>
-                <td><%= p.CodigoBarra %></td>
-                <td><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></td>
-                <td><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></td>
-                <td>
-                    <% if (p.IdEstadoPrestamo === 1) { %>
-                        <span class="badge no-disponible">Activo</span>
-                    <% } else if (p.IdEstadoPrestamo === 2) { %>
-                        <span class="badge disponible">Devuelto</span>
-                    <% } else { %>
-                        <span class="badge">Vencido</span>
-                    <% } %>
-                </td>
-                <td>
-                    <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn btn-small">Ver</a>
-                    
-                    <% if (p.IdEstadoPrestamo === 1) { %>
-                        <!-- Botón Devolver -->
-                        <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-small btn-primary" onclick="return confirm('¿Confirmar devolución?')">Confirmar Devolución</button>
-                            
-                        </form>
-                        
-                        <!-- Botón Renovar -->
-                        <form action="/admin/prestamos/renovar/<%= p.IdPrestamo %>" method="POST" style="display: inline;">
-                            <input type="hidden" name="dias" value="10">
-                            <button type="submit" class="btn btn-small btn-secondary" onclick="return confirm('¿Renovar por 10 días?')">Renovar</button>
-                        </form>
-                    <% } %>
-                </td>
-            </tr>
-            <% }); %>
-        </tbody>
-    </table>
-<% } else { %>
-    <div class="no-resultados">
-        <p>No hay préstamos registrados</p>
-        <a href="/admin/prestamos/nuevo" class="btn btn-primary">Realizar primer préstamo</a>
+        if (p.IdEstadoPrestamo === 2) {
+            prestamosDevueltos.push(p);
+        } else if (p.IdEstadoPrestamo === 1) {
+            if (hoy > fechaEsperada) {
+                prestamosVencidos.push(p);
+            } else {
+                prestamosActivos.push(p);
+            }
+        }
+    });
+}
+%>
+
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('activos')">
+        Activos
+        <span class="tab-count"><%= prestamosActivos.length %></span>
     </div>
-<% } %>
+    <div class="tab" onclick="switchTab('vencidos')">
+        ⚠️ Vencidos
+        <span class="tab-count"><%= prestamosVencidos.length %></span>
+    </div>
+    <div class="tab" onclick="switchTab('devueltos')">
+        ✅ Devueltos
+        <span class="tab-count"><%= prestamosDevueltos.length %></span>
+    </div>
+</div>
+
+<!-- Préstamos Activos -->
+<div id="tab-activos" class="tab-content active">
+    <% if (prestamosActivos.length > 0) { %>
+        <div class="prestamos-grid">
+            <% prestamosActivos.forEach(function(p) { %>
+                <div class="prestamo-card activo">
+                    <div class="prestamo-header">
+                        <div>
+                            <h3><%= p.nombreUsuario %></h3>
+                            <p class="libro-titulo"><%= p.Titulo %></p>
+                        </div>
+                        <span class="codigo"><%= p.CodigoBarra %></span>
+                    </div>
+                    <div class="prestamo-body">
+                        <div class="prestamo-info">
+                            <div class="prestamo-info-item">
+                                <label>Fecha Préstamo</label>
+                                <span><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></span>
+                            </div>
+                            <div class="prestamo-info-item warning">
+                                <label>Fecha Límite</label>
+                                <span><%= new Date(p.FechaDevolucionEsperada).toLocaleDateString('es-MX') %></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prestamo-footer">
+                        <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn-action btn-ver">Ver</a>
+                        <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST">
+                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">✓ Devolver</button>
+                        </form>
+                        <form action="/admin/prestamos/renovar/<%= p.IdPrestamo %>" method="POST">
+                            <input type="hidden" name="dias" value="10">
+                            <button type="submit" class="btn-action btn-renovar" onclick="return confirm('¿Renovar 10 días?')">🔄 Renovar</button>
+                        </form>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="no-resultados">
+            <p>No hay préstamos activos</p>
+        </div>
+    <% } %>
+</div>
+
+<!-- Préstamos Vencidos -->
+<div id="tab-vencidos" class="tab-content">
+    <% if (prestamosVencidos.length > 0) { %>
+        <div class="prestamos-grid">
+            <% prestamosVencidos.forEach(function(p) { %>
+                <%
+                var diff = Math.ceil((hoy - new Date(p.FechaDevolucionEsperada)) / (1000 * 60 * 60 * 24));
+                %>
+                <div class="prestamo-card vencido">
+                    <div class="prestamo-header">
+                        <div>
+                            <h3><%= p.nombreUsuario %></h3>
+                            <p class="libro-titulo"><%= p.Titulo %></p>
+                        </div>
+                        <span class="codigo"><%= p.CodigoBarra %></span>
+                    </div>
+                    <div class="prestamo-body">
+                        <div class="prestamo-info">
+                            <div class="prestamo-info-item">
+                                <label>Fecha Préstamo</label>
+                                <span><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></span>
+                            </div>
+                            <div class="prestamo-info-item danger">
+                                <label>Vencido hace</label>
+                                <span><%= diff %> días</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prestamo-footer">
+                        <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn-action btn-ver">Ver</a>
+                        <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST">
+                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">✓ Devolver</button>
+                        </form>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="no-resultados">
+            <p>No hay préstamos vencidos</p>
+        </div>
+    <% } %>
+</div>
+
+<!-- Préstamos Devueltos -->
+<div id="tab-devueltos" class="tab-content">
+    <% if (prestamosDevueltos.length > 0) { %>
+        <div class="prestamos-grid">
+            <% prestamosDevueltos.forEach(function(p) { %>
+                <div class="prestamo-card devuelto">
+                    <div class="prestamo-header">
+                        <div>
+                            <h3><%= p.nombreUsuario %></h3>
+                            <p class="libro-titulo"><%= p.Titulo %></p>
+                        </div>
+                        <span class="codigo"><%= p.CodigoBarra %></span>
+                    </div>
+                    <div class="prestamo-body">
+                        <div class="prestamo-info">
+                            <div class="prestamo-info-item">
+                                <label>Fecha Préstamo</label>
+                                <span><%= new Date(p.FechaPrestamo).toLocaleDateString('es-MX') %></span>
+                            </div>
+                            <div class="prestamo-info-item success">
+                                <label>Devuelto</label>
+                                <span><%= p.FechaDevolucionReal ? new Date(p.FechaDevolucionReal).toLocaleDateString('es-MX') : 'Sí' %></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prestamo-footer">
+                        <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn-action btn-ver">Ver</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="no-resultados">
+            <p>No hay préstamos devueltos</p>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.tab-content').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        
+        // Desactivar todos los tabs
+        document.querySelectorAll('.tab').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        
+        // Mostrar tab seleccionado
+        document.getElementById('tab-' + tab).classList.add('active');
+        
+        // Activar tabclickeado
+        event.target.classList.add('active');
+    }
+</script>
 
 <%- include('../partials/footer') %>
 

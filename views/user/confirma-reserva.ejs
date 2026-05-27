@@ -1,0 +1,156 @@
+<%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
+
+<style>
+    .confirm-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+        overflow: hidden;
+    }
+    .confirm-header {
+        background: #e67e22;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    .confirm-header .icono {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    .confirm-header h1 {
+        margin: 0;
+        color: white;
+    }
+    .confirm-body {
+        padding: 2rem;
+    }
+    .libro-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .libro-info h2 {
+        color: #0E2B04;
+        margin-bottom: 1rem;
+    }
+    .libro-info .detalle {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    .libro-info .detalle span:first-child {
+        color: #766F5F;
+    }
+    .libro-info .detalle span:last-child {
+        color: #0E2B04;
+        font-weight: 500;
+    }
+    .info-reserva {
+        background: #C5CDC3;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .info-reserva p {
+        margin: 0.5rem 0;
+        color: #0E2B04;
+    }
+    .info-reserva strong {
+        color: #364B26;
+    }
+    .confirm-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    .btn-confirmar {
+        flex: 1;
+        padding: 1rem;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    .btn-confirmar:hover { background: #1e8449; }
+    .btn-cancelar {
+        flex: 1;
+        padding: 1rem;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-cancelar:hover { background: #c0392b; }
+    .aviso {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .aviso p {
+        margin: 0;
+        color: #856404;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="confirm-container">
+    <div class="confirm-header">
+        <div class="icono">🔔</div>
+        <h1>Confirmar Reserva</h1>
+    </div>
+    
+    <div class="confirm-body">
+        <div class="aviso">
+            <p>📢 La reserva estará vigente por 3 días. Pasado ese tiempo, expirará automáticamente.</p>
+        </div>
+        
+        <div class="libro-info">
+            <h2><%= libro.Titulo %></h2>
+            <div class="detalle">
+                <span>ISBN:</span>
+                <span><%= libro.ISBN || 'N/A' %></span>
+            </div>
+            <div class="detalle">
+                <span>Género:</span>
+                <span><%= libro.NombreGenero || 'Sin género' %></span>
+            </div>
+            <div class="detalle">
+                <span>Editorial:</span>
+                <span><%= libro.NombreEditorial || 'Sin editorial' %></span>
+            </div>
+        </div>
+        
+        <div class="info-reserva">
+            <p><strong>📅 Fecha de reserva:</strong> <%= new Date().toLocaleDateString('es-MX') %></p>
+            <p><strong>📆 Expira:</strong> <%= fechaExpiracion %></p>
+            <p><strong>📖 Código:</strong> <%= codigoBarra %></p>
+        </div>
+        
+        <form action="/user/reservar" method="POST">
+            <input type="hidden" name="IdEjemplar" value="<%= idEjemplar %>">
+            <input type="hidden" name="confirmar" value="1">
+            
+            <div class="confirm-actions">
+                <a href="/user/libro/<%= libro.IdLibro %>" class="btn-cancelar">
+                    ← Cancelar
+                </a>
+                <button type="submit" class="btn-confirmar">
+                    ✓ Confirmar Reserva
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

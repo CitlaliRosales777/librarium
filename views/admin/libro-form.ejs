@@ -5,12 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= libro ? 'Editar' : 'Nuevo' %> Libro - Librarium</title>
     <link rel="stylesheet" href="/css/estilo.css">
+    <style>
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #989D8F;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .search-wrapper input:focus {
+            border-color: #0E2B04;
+            outline: none;
+        }
+        .add-new-btn {
+            margin-top: 8px;
+            width: 100%;
+            padding: 10px;
+            background: #C5CDC3;
+            border: 2px dashed #364B26;
+            color: #364B26;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .add-new-btn:hover {
+            background: #B7B9A3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(14, 43, 4, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #0E2B04;
+        }
+        .modal-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+    </style>
 </head>
 <body>
     <%- include('../partials/header') %>
     
     <main>
-        <!-- Breadcrumb -->
         <div class="breadcrumb">
             <a href="/admin/dashboard">Dashboard</a> / 
             <a href="/admin/libros">Libros</a> / 
@@ -25,8 +87,7 @@
                 </div>
                 
                 <form action="<%= libro ? '/admin/libros/editar/' + libro.IdLibro : '/admin/libros/nuevo' %>" 
-                      method="POST" 
-                      enctype="multipart/form-data">
+                      method="POST" enctype="multipart/form-data">
                     
                     <div class="form-body">
                         <!-- Título -->
@@ -36,7 +97,7 @@
                                    placeholder="Ej: Cien años de soledad"
                                    value="<%= libro ? libro.Titulo : '' %>" required>
                         </div>
-                        
+
                         <div class="form-grid">
                             <!-- ISBN -->
                             <div class="form-group">
@@ -45,85 +106,96 @@
                                        placeholder="978-8401023456"
                                        value="<%= libro ? libro.ISBN : '' %>">
                             </div>
-                            
+
                             <!-- Año -->
                             <div class="form-group">
                                 <label>Año de Publicación</label>
                                 <input type="number" name="ano" class="form-control" 
-                                       placeholder="1967" min="1000" max="2030"
+                                       placeholder="1967"
                                        value="<%= libro ? libro.AnoPublicacion : '' %>">
                             </div>
-                            
-                            <!-- Género -->
+
+                            <!-- GÉNERO con datalist -->
                             <div class="form-group">
                                 <label>Género *</label>
-                                <select name="genero" class="form-control" required>
-                                    <option value="">-- Seleccionar --</option>
-                                    <% generos.forEach(g => { %>
-                                        <option value="<%= g.IdGenero %>" 
-                                                <%= libro && libro.IdGenero === g.IdGenero ? 'selected' : '' %>>
-                                            <%= g.NombreGenero %>
-                                        </option>
-                                    <% }) %>
-                                </select>
+                                <input type="text" name="genero" list="generoList" class="form-control" 
+                                    placeholder="Buscar o escribir género..." 
+                                    value="<%= libro ? libro.NombreGenero : '' %>" required
+                                    autocomplete="off">
+                                <datalist id="generoList">
+                                    <% generos.forEach(function(g) { %>
+                                        <option value="<%= g.NombreGenero %>" data-id="<%= g.IdGenero %>"></option>
+                                    <% }); %>
+                                </datalist>
+                                <button type="button" class="add-new-btn" onclick="openModal('genero')">
+                                    Agregar nuevo género
+                                </button>
                             </div>
-                            
-                            <!-- Editorial -->
+
+                            <!-- EDITORIAL con datalist -->
                             <div class="form-group">
                                 <label>Editorial *</label>
-                                <select name="editorial" class="form-control" required>
-                                    <option value="">-- Seleccionar --</option>
-                                    <% editoriales.forEach(e => { %>
-                                        <option value="<%= e.IdEditorial %>"
-                                                <%= libro && libro.IdEditorial === e.IdEditorial ? 'selected' : '' %>>
-                                            <%= e.NombreEditorial %>
-                                        </option>
-                                    <% }) %>
-                                </select>
+                                <input type="text" name="editorial" list="editorialList" class="form-control" 
+                                    placeholder="Buscar o escribir editorial..." 
+                                    value="<%= libro ? libro.NombreEditorial : '' %>" required
+                                    autocomplete="off">
+                                <datalist id="editorialList">
+                                    <% editoriales.forEach(function(e) { %>
+                                        <option value="<%= e.NombreEditorial %>" data-id="<%= e.IdEditorial %>"></option>
+                                    <% }); %>
+                                </datalist>
+                                <button type="button" class="add-new-btn" onclick="openModal('editorial')">
+                                    Agregar nueva editorial
+                                </button>
                             </div>
+
                             
+
                             <!-- Ubicación -->
                             <div class="form-group">
                                 <label>Ubicación *</label>
                                 <select name="ubicacion" class="form-control" required>
                                     <option value="">-- Seleccionar --</option>
-                                    <% ubicaciones.forEach(u => { %>
-                                        <option value="<%= u.IdUbicacion %>"
+                                    <% ubicaciones.forEach(function(u) { %>
+                                        <option value="<%= u.IdUbicacion %>" 
                                                 <%= libro && libro.IdUbicacion === u.IdUbicacion ? 'selected' : '' %>>
                                             <%= u.NombreUbicacion %>
                                         </option>
-                                    <% }) %>
+                                    <% }); %>
                                 </select>
                             </div>
-                            
+
                             <!-- Cantidad (solo crear) -->
                             <% if (!libro) { %>
                                 <div class="form-group">
-                                    <label>Cantidad de Ejemplares *</label>
-                                    <div class="cantidad-box">
-                                        <div class="numero">
-                                            <input type="number" name="cantidad" value="1" min="1" max="50" required 
-                                                   style="width: 80px; text-align: center;">
-                                        </div>
-                                        <small>Cantidad de copias físicas</small>
-                                    </div>
+                                    <label>Ejemplares *</label>
+                                    <input type="number" name="cantidad" class="form-control" 
+                                           value="1" min="1" max="50" required>
+                                    <small style="color: #766F5F;">Cantidad de copias físicas</small>
                                 </div>
                             <% } %>
                         </div>
-                        
+
                         <!-- Sinopsis -->
                         <div class="form-group full-width">
                             <label>Sinopsis</label>
                             <textarea name="sinopsis" class="form-control" 
-                                      placeholder="Escribe una breve descripción del libro..."><%= libro ? libro.Sinopsis : '' %></textarea>
+                                      placeholder="Escribe una breve descripción del libro..."
+                                      rows="4"><%= libro ? libro.Sinopsis : '' %></textarea>
                         </div>
-                        
+
                         <!-- Autores -->
                         <div class="form-group full-width">
                             <label>Autores</label>
-                            <div class="autores-select">
+                            <div class="search-wrapper">
+                                <span style="position: absolute; left: 10px; top: 10px; color: #766F5F;"></span>
+                                <input type="text" id="searchAutores" placeholder="Buscar autores..." 
+                                       style="padding-left: 36px;"
+                                       onkeyup="filterAutores()">
+                            </div>
+                            <div class="autores-select" id="autoresContainer" style="max-height: 250px; overflow-y: auto; border: 2px solid #989D8F; border-radius: 6px;">
                                 <% if (typeof todosAutores !== 'undefined' && todosAutores.length > 0) { %>
-                                    <% todosAutores.forEach(a => { %>
+                                    <% todosAutores.forEach(function(a) { %>
                                         <label class="autor-option">
                                             <input type="checkbox" name="autores" value="<%= a.IdAutor %>"
                                                    <%= typeof autoresIds !== 'undefined' && autoresIds.includes(a.IdAutor) ? 'checked' : '' %>>
@@ -133,28 +205,28 @@
                                         </label>
                                     <% }) %>
                                 <% } else { %>
-                                    <p style="padding: 1rem; color: #777;">
-                                        No hay autores registrados.
-                                    </p>
+                                    <p style="padding: 1rem; color: #766F5F;">No hay autores registrados</p>
                                 <% } %>
                             </div>
+                            <button type="button" class="add-new-btn" onclick="openModal('autor')">
+                                Agregar nuevo autor
+                            </button>
                         </div>
-                        
+
                         <!-- Portada (solo crear) -->
                         <% if (!libro) { %>
                             <div class="form-group full-width">
                                 <label>Imagen de Portada</label>
                                 <div class="upload-zone" onclick="document.getElementById('imagen').click()">
-                                    <p style="font-size: 2rem; color: #667eea;"></p>
+                                    <p style="font-size: 2rem; color: #364B26;"></p>
                                     <p>Arrastra una imagen o haz clic para seleccionar</p>
-                                    <small>Formatos: JPG, PNG (máx 2MB)</small>
+                                    <small style="color: #766F5F;">Formatos: JPG, PNG (máx 2MB)</small>
                                     <input type="file" name="imagen" id="imagen" class="upload-input" accept="image/*">
                                 </div>
                             </div>
                         <% } %>
                     </div>
                     
-                    <!-- Botones -->
                     <div class="form-actions">
                         <a href="/admin/libros" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
@@ -165,7 +237,124 @@
             </div>
         </div>
     </main>
-    
+
+    <!-- MODAL PARA AGREGAR NUEVO -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Agregar Nuevo</h3>
+            <input type="text" id="newItemName" class="form-control" placeholder="Nombre...">
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+                <button type="button" onclick="saveNewItem()" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <%- include('../partials/footer') %>
+
+    <script>
+        let currentType = '';
+
+        function openModal(type) {
+            currentType = type;
+            var titles = {
+                'genero': 'Nuevo Género',
+                'editorial': 'Nueva Editorial',
+                'autor': 'Nuevo Autor'
+            };
+            document.getElementById('modalTitle').textContent = titles[type];
+            document.getElementById('newItemName').value = '';
+            document.getElementById('addModal').classList.add('active');
+            document.getElementById('newItemName').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        async function saveNewItem() {
+            var name = document.getElementById('newItemName').value.trim();
+            if (!name) {
+                alert('El nombre es obligatorio');
+                return;
+            }
+
+            var urls = {
+                'genero': '/admin/generos/nuevo',
+                'editorial': '/admin/editoriales/nuevo',
+                'autor': '/admin/autores/nuevo'
+            };
+
+            try {
+                var res = await fetch(urls[currentType], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'nombre=' + encodeURIComponent(name)
+                });
+
+                if (res.ok) {
+                    alert('Agregado correctamente');
+                    closeModal();
+                    location.reload();
+                } else {
+                    var text = await res.text();
+                    alert('Error al guardar: ' + text);
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            }
+        }
+
+        // Filtrar opciones en selects
+        function filterOptions(searchId, selectId) {
+            var filter = document.getElementById(searchId).value.toLowerCase();
+            var select = document.getElementById(selectId);
+            var options = select.getElementsByTagName('option');
+
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                if (option.value === "") continue;
+                if (option.text.toLowerCase().indexOf(filter) === -1) {
+                    option.style.display = 'none';
+                } else {
+                    option.style.display = '';
+                }
+            }
+        }
+
+        // Filtrar autores (checkboxes)
+        function filterAutores() {
+            var filter = document.getElementById('searchAutores').value.toLowerCase();
+            var labels = document.querySelectorAll('#autoresContainer .autor-option');
+
+            for (var i = 0; i < labels.length; i++) {
+                var label = labels[i];
+                var text = label.textContent.toLowerCase();
+                if (text.indexOf(filter) === -1) {
+                    label.style.display = 'none';
+                } else {
+                    label.style.display = '';
+                }
+            }
+        }
+
+        // Preview de imagen
+        document.getElementById('imagen').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    // Mostrar preview si quieres
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
 </body>
 </html>

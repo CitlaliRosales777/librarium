@@ -1,77 +1,288 @@
 <%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
 
-<h1>🔍 Búsqueda de Material</h1>
-
-<form action="/buscar" method="GET" class="busqueda-form">
-    <div class="busqueda-box">
-        <input type="text" name="q" value="<%= q %>" placeholder="Buscar por título, autor, ISBN o género...">
-        <button type="submit">Buscar</button>
-    </div>
+<style>
+    .user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .user-header h1 { color: #0E2B04; margin: 0; }
+    .menu-user { display: flex; gap: 0.5rem; }
+    .menu-user a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    .menu-user a:hover { background: #0E2B04; }
+    .menu-user a.active { background: #0E2B04; }
     
-    <div class="filtros">
-        <label>
-            <input type="radio" name="tipo" value="" <%= !tipo ? 'checked' : '' %>> Todo
-        </label>
-        <label>
-            <input type="radio" name="tipo" value="libro" <%= tipo === 'libro' ? 'checked' : '' %>> Título
-        </label>
-        <label>
-            <input type="radio" name="tipo" value="autor" <%= tipo === 'autor' ? 'checked' : '' %>> Autor
-        </label>
-        <label>
-            <input type="radio" name="tipo" value="isbn" <%= tipo === 'isbn' ? 'checked' : '' %>> ISBN
-        </label>
-        <label>
-            <input type="radio" name="tipo" value="genero" <%= tipo === 'genero' ? 'checked' : '' %>> Género
-        </label>
-    </div>
-</form>
+    .busqueda-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+        margin-bottom: 2rem;
+    }
+    .busqueda-box {
+        display: flex;
+        gap: 1rem;
+    }
+    .busqueda-box input {
+        flex: 1;
+        padding: 14px 20px;
+        border: 2px solid #989D8F;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    .busqueda-box input:focus { outline: none; border-color: #0E2B04; }
+    .busqueda-box button, .btn-clear {
+        padding: 14px 20px;
+        background: #0E2B04;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .btn-clear { background: #e74c3c !important; }
+    .btn-clear:hover { background: #c0392b !important; }
+    .filtros { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .filtros label { display: flex; align-items: center; gap: 0.5rem; color: #364B26; }
+    
+    .libros-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .libro-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .libro-card-header { background: #364B26; color: white; padding: 1rem 1.25rem; }
+    .libro-card-header h3 { color: white; margin: 0; font-size: 1.1rem; }
+    .libro-card-body { padding: 1.25rem; }
+    .libro-info { margin-bottom: 0.75rem; }
+    .libro-info span { display: block; font-size: 0.9rem; color: #766F5F; }
+    .libro-info strong { color: #0E2B04; }
+    .libro-card-footer { padding: 1rem 1.25rem; background: #C5CDC3; display: flex; justify-content: space-between; align-items: center; }
+    .badge { padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+    .badge.disponible { background: #27ae60; color: white; }
+    .badge.no-disponible { background: #e74c3c; color: white; }
+    .btn-ver {
+        padding: 0.5rem 1rem;
+        background: #364B26;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-ver:hover { background: #0E2B04; }
+    .no-resultados { text-align: center; padding: 4rem 2rem; background: white; border-radius: 10px; }
+    .no-resultados p { font-size: 1.2rem; color: #766F5F; }
+    .contador { margin-bottom: 1.5rem; color: #766F5F; }
 
-<% if (resultados.length > 0) { %>
-    <div class="resultados">
-        <p class="contador">Se encontraron <%= resultados.length %> resultados</p>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>ISBN</th>
-                    <th>Año</th>
-                    <th>Género</th>
-                    <th>Editorial</th>
-                    <th>Disponibles</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% resultados.forEach(function(libro) { %>
-                <tr>
-                    <td><%= libro.Titulo %></td>
-                    <td><%= libro.ISBN %></td>
-                    <td><%= libro.AnoPublicacion %></td>
-                    <td><%= libro.NombreGenero %></td>
-                    <td><%= libro.NombreEditorial %></td>
-                    <td>
-                        <span class="badge <%= libro.disponibles > 0 ? 'disponible' : 'no-disponible' %>">
-                            <%= libro.disponibles %>
-                        </span>
-                    </td>
-                    <td>
+    @media (max-width: 768px) {
+        .busqueda-box { flex-direction: column; }
+    }
+</style>
+
+<div class="user-header">
+    <h1>Búsqueda</h1>
+    <div class="menu-user">
+        <a href="/user/biblioteca">Biblioteca</a>
+        <a href="/buscar" class="active">Buscar</a>
+        <a href="/user/mis-prestamos">Mis Préstamos</a>
+        <a href="/user/reservas">Mis Reservas</a>
+    </div>
+</div>
+
+<!-- búsqueda -->
+<div class="busqueda-container">
+    <div class="busqueda-box">
+        <input type="text" id="buscador" placeholder="Buscar por título, autor, ISBN o género..." value="<%= q || '' %>">
+        <button onclick="buscar()">Buscar</button>
+        <button type="button" class="btn-clear" onclick="limpiarBusqueda()">Limpiar</button>
+    </div>
+    <div class="filtros">
+        <label><input type="radio" name="tipo" value="todo" <%= !tipo || tipo === 'todo' ? 'checked' : '' %>> Todo</label>
+        <label><input type="radio" name="tipo" value="libro" <%= tipo === 'libro' ? 'checked' : '' %>> Título</label>
+        <label><input type="radio" name="tipo" value="autor" <%= tipo === 'autor' ? 'checked' : '' %>> Autor</label>
+        <label><input type="radio" name="tipo" value="isbn" <%= tipo === 'isbn' ? 'checked' : '' %>> ISBN</label>
+        <label><input type="radio" name="tipo" value="genero" <%= tipo === 'genero' ? 'checked' : '' %>> Género</label>
+    </div>
+</div>
+
+<!-- ✅ CONTENEDOR ÚNICO para resultados (servidor o AJAX) -->
+<div id="todosResultados">
+    <% if (q && resultados && resultados.length > 0) { %>
+        <p class="contador">Se encontraron <%= resultados.length %> resultados para "<%= q %>"</p>
+        <div class="libros-grid">
+            <% resultados.forEach(function(libro) { %>
+                <div class="libro-card">
+                    <div class="libro-card-header">
+                        <h3><%= libro.Titulo %></h3>
+                    </div>
+                    <div class="libro-card-body">
+                        <div class="libro-info">
+                            <span><strong>ISBN:</strong> <%= libro.ISBN || 'N/A' %></span>
+                            <span><strong>Año:</strong> <%= libro.AnoPublicacion || '-' %></span>
+                            <span><strong>Género:</strong> <%= libro.NombreGenero || '-' %></span>
+                            <span><strong>Editorial:</strong> <%= libro.NombreEditorial || '-' %></span>
+                        </div>
+                        <a href="/user/libro/<%= libro.IdLibro %>" class="btn-ver">Ver detalles</a>
+                    </div>
+                    <div class="libro-card-footer">
                         <% if (libro.disponibles > 0) { %>
-                            <a href="/user/reservar/<%= libro.IdLibro %>" class="btn btn-small">Reservar</a>
+                            <span class="badge disponible"><%= libro.disponibles %> disponible(s)</span>
                         <% } else { %>
-                            <span class="texto-gris">No disponible</span>
+                            <span class="badge no-disponible">Agotado</span>
                         <% } %>
-                    </td>
-                </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    </div>
-<% } else if (q) { %>
-    <div class="no-resultados">
-        <p>No se encontraron resultados para "<%= q %>"</p>
-    </div>
-<% } %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else if (q) { %>
+        <div class="no-resultados">
+            <p style="font-size: 3rem;"></p>
+            <p>No se encontraron resultados para "<%= q %>"</p>
+        </div>
+    <% } else { %>
+        <div class="no-resultados">
+            <p style="font-size: 3rem;"></p>
+            <p>Escribe en el buscador para encontrar libros</p>
+        </div>
+    <% } %>
+</div>
+
+<!-- Script corregido -->
+<script>
+    var timeoutBusqueda;
+    var inputBuscador = document.getElementById('buscador');
+    var containerResultados = document.getElementById('todosResultados');
+    var resultadosServidor = <%= JSON.stringify(resultados || []) %>;
+    
+    // Evento: escribir en el input
+    inputBuscador.addEventListener('input', function() {
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(buscar, 300);
+    });
+    
+    // Evento: presionar Enter
+    inputBuscador.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscar();
+        }
+    });
+
+    function buscar() {
+        var q = inputBuscador.value.trim();
+        
+        // ✅ Si está vacío, limpiar y mostrar resultados del servidor (si hay)
+        if (q.length < 2) {
+            if (resultadosServidor.length > 0) {
+                mostrarResultados(resultadosServidor);
+            } else {
+                containerResultados.innerHTML = 
+                    '<div class="no-resultados">' +
+                        '<p style="font-size: 3rem;"></p>' +
+                        '<p>Escribe en el buscador para encontrar libros</p>' +
+                    '</div>';
+            }
+            return;
+        }
+        
+        var tipo = document.querySelector('input[name="tipo"]:checked').value;
+        
+        // ✅ Hacer búsqueda AJAX
+        fetch('/api/buscar?q=' + encodeURIComponent(q) + '&tipo=' + tipo)
+            .then(function(r) { return r.json(); })
+            .then(function(libros) {
+                mostrarResultados(libros);
+            })
+            .catch(function(err) { 
+                console.error('Error:', err); 
+                containerResultados.innerHTML = '<p style="color: red;">Error en la búsqueda</p>';
+            });
+    }
+
+    function mostrarResultados(libros) {
+        // ✅ LIMPIAR el contenedor antes de mostrar
+        containerResultados.innerHTML = '';
+        
+        if (!libros || libros.length === 0) {
+            containerResultados.innerHTML = 
+                '<div class="no-resultados">' +
+                    '<p style="font-size: 3rem;"></p>' +
+                    '<p>No se encontraron resultados</p>' +
+                '</div>';
+            return;
+        }
+        
+        // ✅ Crear contador
+        var contador = document.createElement('p');
+        contador.className = 'contador';
+        contador.textContent = 'Se encontraron ' + libros.length + ' resultados';
+        containerResultados.appendChild(contador);
+        
+        // ✅ Crear grid
+        var grid = document.createElement('div');
+        grid.className = 'libros-grid';
+        
+        libros.forEach(function(libro) {
+            var btns = '';
+            if (libro.disponibles > 0) {
+                btns = '<a href="/user/libro/' + libro.IdLibro + '" class="btn-ver">Ver detalles</a>';
+            } else {
+                btns = '<span style="color: #766F5F; font-size: 0.85rem;">No disponible</span>';
+            }
+            
+            var card = document.createElement('div');
+            card.className = 'libro-card';
+            card.innerHTML = 
+                '<div class="libro-card-header">' +
+                    '<h3>' + libro.Titulo + '</h3>' +
+                '</div>' +
+                '<div class="libro-card-body">' +
+                    '<div class="libro-info">' +
+                        '<span><strong>ISBN:</strong> ' + (libro.ISBN || 'N/A') + '</span>' +
+                        '<span><strong>Año:</strong> ' + (libro.AnoPublicacion || '-') + '</span>' +
+                        '<span><strong>Género:</strong> ' + (libro.NombreGenero || '-') + '</span>' +
+                        '<span><strong>Editorial:</strong> ' + (libro.NombreEditorial || '-') + '</span>' +
+                    '</div>' + btns +
+                '</div>' +
+                '<div class="libro-card-footer">' +
+                    (libro.disponibles > 0 ? 
+                        '<span class="badge disponible">' + libro.disponibles + ' disponible(s)</span>' :
+                        '<span class="badge no-disponible">Agotado</span>') +
+                '</div>';
+            grid.appendChild(card);
+        });
+        
+        containerResultados.appendChild(grid);
+    }
+    
+    // ✅ FUNCIÓN PARA LIMPIAR
+    function limpiarBusqueda() {
+        inputBuscador.value = '';
+        
+        // ✅ Si hay resultados del servidor, mostrarlos
+        if (resultadosServidor.length > 0) {
+            mostrarResultados(resultadosServidor);
+        } else {
+            containerResultados.innerHTML = 
+                '<div class="no-resultados">' +
+                    '<p style="font-size: 3rem;"></p>' +
+                    '<p>Escribe en el buscador para encontrar libros</p>' +
+                '</div>';
+        }
+    }
+</script>
 
 <%- include('../partials/footer') %>

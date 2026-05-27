@@ -97,6 +97,7 @@ const isAdmin = (req, res, next) => {
 // 3. AUTH (LOGIN/LOGOUT)
 // ==========================================
 
+
 app.get('/login', (req, res) => {
     res.render('auth/login', { error: null });
 });
@@ -140,7 +141,45 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
+// ==================== REGISTRO (GET) ====================
+
+app.get('/registro', (req, res) => {
+    res.render('auth/registro', { error: null });
+});
+
+// ==================== REGISTRO (POST) ====================
+
+app.post('/registro', async (req, res) => {
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, telefono, ciudad } = req.body;
+    
+    if (contraseña.length < 6) {
+        return res.render('auth/registro', { error: 'La contraseña debe tener al menos 6 caracteres' });
+    }
+    
+    try {
+        // Verificar si el correo ya existe
+        const existe = await db.query`SELECT * FROM Usuarios WHERE Correo = ${correo}`;
+        if (existe.recordset.length > 0) {
+            return res.render('auth/registro', { error: 'El correo ya está registrado' });
+        }
+        
+        // Encriptar contraseña
+        const passwordHash = await bcrypt.hash(contraseña, 10);
+        
+        // Insertar usuario con campos correctos (sin acentos)
+        await db.query`
+            INSERT INTO Usuarios (IdRol, Nombre, ApellidoPaterno, ApellidoMaterno, Correo, ContraseñaHash, Telefono, Ciudad)
+            VALUES (3, ${nombre}, ${apellidoPaterno}, ${apellidoMaterno || null}, ${correo}, ${passwordHash}, ${telefono || null}, ${ciudad || null})
+        `;
+        
+        res.redirect('/login?registrado=1');
+    } catch (err) {
+        console.error('Error:', err.message);
+        res.render('auth/registro', { error: 'Error al registrar' });
+    }
+});
 app.get('/', (req, res) => res.redirect('/login'));
+
 
 // ==========================================
 // 4. ADMIN - DASHBOARD
@@ -1512,7 +1551,167 @@ app.get('/admin/reportes/reservas/excel', isAuth, isBibliotecario, async (req, r
     res.end();
 });
 
+// ============================================================
+// USUARIO - RESERVAS (COMPLETO)
+// ============================================================
 
+// 1. Página de confirmación de reserva (GET) - DEBE IR PRIMERO
+app.get('/user/reservar/confirmar/:id', isAuth, async (req, res) => {
+    try {
+        const resultado = await db.query`
+            SELECT e.*, l.Titulo, l.ISBN, l.AnoPublicacion, 
+                   g.NombreGenero, ed.NombreEditorial
+            FROM Ejemplares e
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            LEFT JOIN Generos g ON l.IdGenero = g.IdGenero
+            LEFT JOIN Editoriales ed ON l.IdEditorial = ed.IdEditorial
+            WHERE e.IdEjemplar = ${req.params.id}
+        `;
+        
+        if (resultado.recordset.length === 0) {
+            return res.redirect('/user/biblioteca');
+        }
+        
+        const ej = resultado.recordset[0];
+        
+        // Calcular fecha de expiración (3 días)
+        const fechaExp = new Date();
+        fechaExp.setDate(fechaExp.getDate() + 3);
+        
+        res.render('user/confirma-reserva', {
+            libro: {
+                IdLibro: ej.IdLibro,
+                Titulo: ej.Titulo,
+                ISBN: ej.ISBN,
+                AnoPublicacion: ej.AnoPublicacion,
+                NombreGenero: ej.NombreGenero,
+                NombreEditorial: ej.NombreEditorial
+            },
+            idEjemplar: ej.IdEjemplar,
+            codigoBarra: ej.CodigoBarra,
+            fechaExpiracion: fechaExp.toLocaleDateString('es-MX')
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/biblioteca');
+    }
+});
+
+// 2. Lista de mis reservas (GET)
+app.get('/user/reservas', isAuth, async (req, res) => {
+    try {
+        const resultado = await db.query`
+            SELECT r.*, l.Titulo, e.CodigoBarra, e.IdLibro
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdUsuario = ${req.session.userId}
+            ORDER BY r.FechaReserva DESC
+        `;
+        res.render('user/reservas', { reservas: resultado.recordset });
+    } catch (err) {
+        console.error('Error:', err);
+        res.render('user/reservas', { reservas: [] });
+    }
+});
+
+// 3. Procesar reserva (POST) - Desde página de confirmación
+app.post('/user/reservar', isAuth, async (req, res) => {
+    const { IdEjemplar, confirmar } = req.body;
+    
+    // Si no viene de confirmación, redireccionar a página de confirmación
+    if (!confirmar) {
+        return res.redirect('/user/reservar/confirmar/' + IdEjemplar);
+    }
+    
+    try {
+        // Verificar que no tenga ya una reserva activa para ese ejemplar
+        const existente = await db.query`
+            SELECT * FROM Reservas 
+            WHERE IdUsuario = ${req.session.userId} 
+            AND IdEjemplar = ${IdEjemplar}
+            AND FechaExpiracion >= GETDATE()
+        `;
+        
+        if (existente.recordset.length > 0) {
+            return res.send('Ya tienes una reserva activa para este libro');
+        }
+        
+        // Verificar que el ejemplar esté disponible (no activo)
+        const ejemplar = await db.query`
+            SELECT Activo FROM Ejemplares WHERE IdEjemplar = ${IdEjemplar}
+        `;
+        
+        if (ejemplar.recordset[0].Activo === 1) {
+            return res.redirect('/user/biblioteca');
+        }
+        
+        // Calcular fecha de expiración (3 días)
+        const fechaExp = new Date();
+        fechaExp.setDate(fechaExp.getDate() + 3);
+        
+        await db.query`
+            INSERT INTO Reservas (IdUsuario, IdEjemplar, FechaExpiracion, IdEstadoReserva)
+            VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaExp}, 1)
+        `;
+        
+        res.redirect('/user/reservas?success=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.send('Error al reservar');
+    }
+});
+
+// 4. Cancelar reserva (POST)
+app.post('/user/reservas/cancelar/:id', isAuth, async (req, res) => {
+    try {
+        await db.query`
+            DELETE FROM Reservas 
+            WHERE IdReserva = ${req.params.id} 
+            AND IdUsuario = ${req.session.userId}
+        `;
+        res.redirect('/user/reservas?cancelado=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/reservas');
+    }
+});
+
+// 5. Solicitar préstamo (POST) - Cuando hay ejemplares disponibles
+app.post('/user/prestamo', isAuth, async (req, res) => {
+    const { IdEjemplar } = req.body;
+    
+    try {
+        // Verificar que el ejemplar esté disponible
+        const ejemplar = await db.query`
+            SELECT * FROM Ejemplares WHERE IdEjemplar = ${IdEjemplar} AND Activo = 1
+        `;
+        
+        if (ejemplar.recordset.length === 0) {
+            return res.redirect('/user/biblioteca');
+        }
+        
+        // Calcular fecha de devolución (15 días)
+        const fechaDev = new Date();
+        fechaDev.setDate(fechaDev.getDate() + 15);
+        
+        // Crear préstamo
+        await db.query`
+            INSERT INTO Prestamos (IdUsuario, IdEjemplar, FechaDevolucionEsperada, IdEstadoPrestamo)
+            VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaDev}, 1)
+        `;
+        
+        // Desactivar ejemplar
+        await db.query`
+            UPDATE Ejemplares SET Activo = 0 WHERE IdEjemplar = ${IdEjemplar}
+        `;
+        
+        res.redirect('/user/mis-prestamos?success=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/biblioteca');
+    }
+});
 
 
 // ==================== USUARIO - BIBLIOTECA ====================
@@ -1558,16 +1757,60 @@ app.get('/user/mis-prestamos', isAuth, async (req, res) => {
     res.render('user/mis-prestamos', { prestamos: resultado.recordset });
 });
 
-app.get('/user/reservar/:id', isAuth, async (req, res) => {
-    const fechaExp = new Date();
-    fechaExp.setDate(fechaExp.getDate() + 3);
-    
-    await db.query`
-        INSERT INTO Reservas (IdUsuario, IdEjemplar, FechaExpiracion, IdEstadoReserva)
-        VALUES (${req.session.userId}, ${req.params.id}, ${fechaExp}, 1)
-    `;
-    res.redirect('/user/biblioteca');
+// ==================== PERFIL (GET) ====================
+
+app.get('/user/perfil', isAuth, async (req, res) => {
+    try {
+        // Datos del usuario
+        const usuario = await db.query`
+            SELECT u.*, r.NombreRol
+            FROM Usuarios u
+            JOIN Roles r ON u.IdRol = r.IdRol
+            WHERE u.IdUsuario = ${req.session.userId}
+        `;
+        
+        // Préstamos activos
+        const prestamos = await db.query`
+            SELECT p.*, l.Titulo, e.CodigoBarra
+            FROM Prestamos p
+            JOIN Ejemplares e ON p.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE p.IdUsuario = ${req.session.userId}
+            AND p.IdEstadoPrestamo = 1
+        `;
+        
+        // Reservas activas
+        const reservas = await db.query`
+            SELECT r.*, l.Titulo, e.CodigoBarra
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdUsuario = ${req.session.userId}
+            AND r.FechaExpiracion >= GETDATE()
+        `;
+        
+        // Multas pendientes
+        const multas = await db.query`
+            SELECT m.*
+            FROM Multas m
+            JOIN Prestamos p ON m.IdPrestamo = p.IdPrestamo
+            WHERE p.IdUsuario = ${req.session.userId}
+            AND m.Pagado = 0
+        `;
+        
+        res.render('user/perfil', {
+            usuario: usuario.recordset[0],
+            prestamosActivos: prestamos.recordset,
+            misReservas: reservas.recordset,
+            multasPendientes: multas.recordset
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/biblioteca');
+    }
 });
+
+
 
 // ==================== BÚSQUEDA ====================
 
@@ -1644,6 +1887,8 @@ app.get('/buscar', isAuth, async (req, res) => {
     res.render('user/buscar', { resultados: resultado.recordset, q: q, tipo: tipoBusqueda });
 });
 
+// ==================== API - BÚSQUEDA ====================
+
 // API de búsqueda en tiempo real (autocomplete)
 app.get('/api/buscar', isAuth, async (req, res) => {
     const { q } = req.query;
@@ -1653,7 +1898,7 @@ app.get('/api/buscar', isAuth, async (req, res) => {
     const busqueda = '%' + q + '%';
     
     const resultado = await db.query`
-        SELECT DISTINCT l.IdLibro, l.Titulo, l.ISBN, l.AnoPublicacion, g.NombreGenero, e.NombreEditorial,
+        SELECT DISTINCT TOP 50 l.IdLibro, l.Titulo, l.ISBN, l.AnoPublicacion, g.NombreGenero, e.NombreEditorial,
                (SELECT COUNT(*) FROM Ejemplares WHERE IdLibro = l.IdLibro AND Activo = 1) as disponibles
         FROM Libros l
         LEFT JOIN Generos g ON l.IdGenero = g.IdGenero
@@ -1674,24 +1919,78 @@ app.listen(3001, () => {
     console.log(`✅ Servidor en http://localhost:3001`);
 });
 
-// ==================== USUARIO - RESERVAS ====================
+// ============================================================
+// USUARIO - RESERVAS (COMPLETO)
+// ============================================================
 
-// 1. Mis reservas
-app.get('/user/reservas', isAuth, async (req, res) => {
-    const resultado = await db.query`
-        SELECT r.*, l.Titulo, e.CodigoBarra
-        FROM Reservas r
-        JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
-        JOIN Libros l ON e.IdLibro = l.IdLibro
-        WHERE r.IdUsuario = ${req.session.userId}
-        ORDER BY r.FechaReserva DESC
-    `;
-    res.render('user/reservas', { reservas: resultado.recordset });
+// 1. Página de confirmación de reserva (GET) - DEBE IR PRIMERO
+app.get('/user/reservar/confirmar/:id', isAuth, async (req, res) => {
+    try {
+        const resultado = await db.query`
+            SELECT e.*, l.Titulo, l.ISBN, l.AnoPublicacion, 
+                   g.NombreGenero, ed.NombreEditorial
+            FROM Ejemplares e
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            LEFT JOIN Generos g ON l.IdGenero = g.IdGenero
+            LEFT JOIN Editoriales ed ON l.IdEditorial = ed.IdEditorial
+            WHERE e.IdEjemplar = ${req.params.id}
+        `;
+        
+        if (resultado.recordset.length === 0) {
+            return res.redirect('/user/biblioteca');
+        }
+        
+        const ej = resultado.recordset[0];
+        
+        // Calcular fecha de expiración (3 días)
+        const fechaExp = new Date();
+        fechaExp.setDate(fechaExp.getDate() + 3);
+        
+        res.render('user/confirma-reserva', {
+            libro: {
+                IdLibro: ej.IdLibro,
+                Titulo: ej.Titulo,
+                ISBN: ej.ISBN,
+                AnoPublicacion: ej.AnoPublicacion,
+                NombreGenero: ej.NombreGenero,
+                NombreEditorial: ej.NombreEditorial
+            },
+            idEjemplar: ej.IdEjemplar,
+            codigoBarra: ej.CodigoBarra,
+            fechaExpiracion: fechaExp.toLocaleDateString('es-MX')
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/biblioteca');
+    }
 });
 
-// 2. Hacer reserva (POST)
+// 2. Lista de mis reservas (GET)
+app.get('/user/reservas', isAuth, async (req, res) => {
+    try {
+        const resultado = await db.query`
+            SELECT r.*, l.Titulo, e.CodigoBarra, e.IdLibro
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdUsuario = ${req.session.userId}
+            ORDER BY r.FechaReserva DESC
+        `;
+        res.render('user/reservas', { reservas: resultado.recordset });
+    } catch (err) {
+        console.error('Error:', err);
+        res.render('user/reservas', { reservas: [] });
+    }
+});
+
+// 3. Procesar reserva (POST) - Desde página de confirmación
 app.post('/user/reservar', isAuth, async (req, res) => {
-    const { IdEjemplar } = req.body;
+    const { IdEjemplar, confirmar } = req.body;
+    
+    // Si no viene de confirmación, redireccionar a página de confirmación
+    if (!confirmar) {
+        return res.redirect('/user/reservar/confirmar/' + IdEjemplar);
+    }
     
     try {
         // Verificar que no tenga ya una reserva activa para ese ejemplar
@@ -1706,6 +2005,15 @@ app.post('/user/reservar', isAuth, async (req, res) => {
             return res.send('Ya tienes una reserva activa para este libro');
         }
         
+        // Verificar que el ejemplar esté disponible (no activo)
+        const ejemplar = await db.query`
+            SELECT Activo FROM Ejemplares WHERE IdEjemplar = ${IdEjemplar}
+        `;
+        
+        if (ejemplar.recordset[0].Activo === 1) {
+            return res.redirect('/user/biblioteca');
+        }
+        
         // Calcular fecha de expiración (3 días)
         const fechaExp = new Date();
         fechaExp.setDate(fechaExp.getDate() + 3);
@@ -1715,21 +2023,62 @@ app.post('/user/reservar', isAuth, async (req, res) => {
             VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaExp}, 1)
         `;
         
-        res.redirect('/user/reservas');
+        res.redirect('/user/reservas?success=1');
     } catch (err) {
         console.error('Error:', err);
         res.send('Error al reservar');
     }
 });
 
-// 3. Cancelar reserva (POST)
+// 4. Cancelar reserva (POST)
 app.post('/user/reservas/cancelar/:id', isAuth, async (req, res) => {
-    await db.query`
-        DELETE FROM Reservas 
-        WHERE IdReserva = ${req.params.id} 
-        AND IdUsuario = ${req.session.userId}
-    `;
-    res.redirect('/user/reservas');
+    try {
+        await db.query`
+            DELETE FROM Reservas 
+            WHERE IdReserva = ${req.params.id} 
+            AND IdUsuario = ${req.session.userId}
+        `;
+        res.redirect('/user/reservas?cancelado=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/reservas');
+    }
+});
+
+// 5. Solicitar préstamo (POST) - Cuando hay ejemplares disponibles
+app.post('/user/prestamo', isAuth, async (req, res) => {
+    const { IdEjemplar } = req.body;
+    
+    try {
+        // Verificar que el ejemplar esté disponible
+        const ejemplar = await db.query`
+            SELECT * FROM Ejemplares WHERE IdEjemplar = ${IdEjemplar} AND Activo = 1
+        `;
+        
+        if (ejemplar.recordset.length === 0) {
+            return res.redirect('/user/biblioteca');
+        }
+        
+        // Calcular fecha de devolución (15 días)
+        const fechaDev = new Date();
+        fechaDev.setDate(fechaDev.getDate() + 15);
+        
+        // Crear préstamo
+        await db.query`
+            INSERT INTO Prestamos (IdUsuario, IdEjemplar, FechaDevolucionEsperada, IdEstadoPrestamo)
+            VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaDev}, 1)
+        `;
+        
+        // Desactivar ejemplar
+        await db.query`
+            UPDATE Ejemplares SET Activo = 0 WHERE IdEjemplar = ${IdEjemplar}
+        `;
+        
+        res.redirect('/user/mis-prestamos?success=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/biblioteca');
+    }
 });
 
 // 4. Notificaciones - Ver si hay libros disponibles reservados
@@ -1760,5 +2109,133 @@ app.get('/api/notificaciones', isAuth, async (req, res) => {
         }
     }
     res.json(notificaciones);
+});
+
+// ==================== CONFIRMAR PRÉSTAMO DESDE NOTIFICACIÓN ====================
+
+app.get('/user/prestamo/confirmar/:id', isAuth, async (req, res) => {
+    try {
+        const reserva = await db.query`
+            SELECT r.*, l.Titulo, e.CodigoBarra
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdReserva = ${req.params.id}
+            AND r.IdUsuario = ${req.session.userId}
+        `;
+        
+        if (reserva.recordset.length === 0) {
+            return res.redirect('/user/reservas');
+        }
+        
+        const r = reserva.recordset[0];
+        
+        // Calcular fecha límite (15 días)
+        const fechaLimite = new Date();
+        fechaLimite.setDate(fechaLimite.getDate() + 15);
+        
+        res.render('user/confirma-prestamo', {
+            idReserva: r.IdReserva,
+            idEjemplar: r.IdEjemplar,
+            titulo: r.Titulo,
+            codigoBarra: r.CodigoBarra,
+            fechaLimite: fechaLimite.toLocaleDateString('es-MX')
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/reservas');
+    }
+});
+
+// Procesar préstamo inmediato desde notificación
+app.post('/user/prestamo/inmediato', isAuth, async (req, res) => {
+    const { IdReserva, IdEjemplar } = req.body;
+    
+    try {
+        // Eliminar la reserva
+        await db.query`DELETE FROM Reservas WHERE IdReserva = ${IdReserva}`;
+        
+        // Calcular fecha de devolución (15 días)
+        const fechaDev = new Date();
+        fechaDev.setDate(fechaDev.getDate() + 15);
+        
+        // Crear préstamo
+        await db.query`
+            INSERT INTO Prestamos (IdUsuario, IdEjemplar, FechaDevolucionEsperada, IdEstadoPrestamo)
+            VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaDev}, 1)
+        `;
+        
+        // Desactivar ejemplar
+        await db.query`UPDATE Ejemplares SET Activo = 0 WHERE IdEjemplar = ${IdEjemplar}`;
+        
+        res.redirect('/user/mis-prestamos?success=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/user/reservas');
+    }
+});
+
+// ==================== ADMIN - GÉNEROS ====================
+
+app.post('/admin/generos/nuevo', isAuth, isBibliotecario, async (req, res) => {
+    const { nombre } = req.body;
+    try {
+        await db.query`INSERT INTO Generos (NombreGenero) VALUES (${nombre})`;
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Error al guardar' });
+    }
+});
+
+// ==================== ADMIN - EDITORIALES ====================
+
+app.post('/admin/editoriales/nuevo', isAuth, isBibliotecario, async (req, res) => {
+    const { nombre } = req.body;
+    try {
+        await db.query`INSERT INTO Editoriales (NombreEditorial) VALUES (${nombre})`;
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Error al guardar' });
+    }
+});
+
+// ==================== ADMIN - AUTORES ====================
+
+app.post('/admin/autores/nuevo', isAuth, isBibliotecario, async (req, res) => {
+    // El esquema requiere: Nombre, ApellidoPaterno
+    // El modal solo envía "nombre" = nombre completo
+    const { nombre } = req.body;
+    
+    // Separar nombre en partes (supongamos que-envía "Gabriel García Márquez")
+    const partes = nombre.trim().split(' ');
+    
+    let nombreAutor = '';
+    let apellidoPaterno = '';
+    let apellidoMaterno = null;
+    
+    if (partes.length === 1) {
+        nombreAutor = partes[0];
+        apellidoPaterno = '';
+    } else if (partes.length === 2) {
+        nombreAutor = partes[0];
+        apellidoPaterno = partes[1];
+    } else if (partes.length >= 3) {
+        nombreAutor = partes[0];
+        apellidoPaterno = partes[1];
+        apellidoMaterno = partes.slice(2).join(' ');
+    }
+    
+    try {
+        await db.query`
+            INSERT INTO Autores (Nombre, ApellidoPaterno, ApellidoMaterno)
+            VALUES (${nombreAutor}, ${apellidoPaterno}, ${apellidoMaterno})
+        `;
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Error al guardar' });
+    }
 });
 

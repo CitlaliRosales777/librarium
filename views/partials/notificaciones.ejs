@@ -1,0 +1,131 @@
+<style>
+    .notificaciones-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 350px;
+    }
+    .notificacion {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(14, 43, 4, 0.2);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #27ae60;
+        animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    .notificacion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .notificacion-header strong {
+        color: #27ae60;
+    }
+    .notificacion-close {
+        cursor: pointer;
+        color: #766F5F;
+        font-size: 1.2rem;
+    }
+    .notificacion-close:hover { color: #0E2B04; }
+    .notificacion-body p {
+        margin: 0;
+        color: #0E2B04;
+    }
+    .notificacion-body .libro-titulo {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .notificacion-body .mensaje {
+        font-size: 0.9rem;
+        color: #766F5F;
+    }
+    .notificacion-btn {
+        display: inline-block;
+        margin-top: 0.75rem;
+        padding: 0.5rem 1rem;
+        background: #27ae60;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+    .notificacion-btn:hover { background: #1e8449; }
+    .badge-notificacion {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="notificaciones-container" id="notificacionesContainer">
+    <!-- Las notificaciones se cargan aquí -->
+</div>
+
+<!-- Script para cargar notificaciones -->
+<script>
+    // Cargar notificaciones al iniciar
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarNotificaciones();
+        
+        // Actualizar cada 30 segundos
+        setInterval(cargarNotificaciones, 30000);
+    });
+
+    function cargarNotificaciones() {
+        fetch('/api/notificaciones')
+            .then(function(r) { return r.json(); })
+            .then(function(notificaciones) {
+                mostrarNotificaciones(notificaciones);
+            })
+            .catch(function(err) { 
+                console.error('Error:', err); 
+            });
+    }
+
+    function mostrarNotificaciones(notificaciones) {
+        var container = document.getElementById('notificacionesContainer');
+        
+        // Si no hay notificaciones, no hacer nada
+        if (!notificaciones || notificaciones.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        notificaciones.forEach(function(n) {
+            var div = document.createElement('div');
+            div.className = 'notificacion';
+            div.innerHTML = 
+                '<div class="notificacion-header">' +
+                    '<strong>📚 Libro Disponible</strong>' +
+                    '<span class="notificacion-close" onclick="this.parentElement.parentElement.remove()">×</span>' +
+                '</div>' +
+                '<div class="notificacion-body">' +
+                    '<p class="libro-titulo">' + n.titulo + '</p>' +
+                    '<p class="mensaje">' + n.mensaje + '</p>' +
+                    '<a href="/user/prestamo/confirmar/' + n.idReserva + '" class="notificacion-btn">' +
+                        'Solicitar Préstamo' +
+                    '</a>' +
+                '</div>';
+            container.appendChild(div);
+        });
+    }
+</script>

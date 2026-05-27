@@ -1,8 +1,145 @@
-<div class="menu-admin">
-        <a href="/admin/libros" class="btn">Gestión de Libros</a>
-        <a href="/admin/usuarios" class="btn">Gestión de Usuarios</a>
-        <a href="/admin/prestamos" class="btn">Préstamos</a>
-        <a href="/admin/prestamos/nuevo" class="btn btn">Nuevo Préstamo</a>
-        <a href="/admin/multas"class="btn">Multas</a>
-        <a href="/admin/dashboard"class="btn">Inicio</a>
+<style>
+    .admin-nav {
+        background: #0E2B04;
+        padding: 0;
+        margin-bottom: 2rem;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .admin-nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .admin-nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: #364B26;
+    }
+    .admin-nav-logo h2 {
+        color: #C5CDC3;
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    .admin-nav-logo .icon {
+        font-size: 1.5rem;
+    }
+    .admin-nav-links {
+        display: flex;
+        gap: 0;
+    }
+    .admin-nav-links a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.25rem 1.25rem;
+        color: #B7B9A3;
+        text-decoration: none;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+    .admin-nav-links a:hover {
+        background: #1a3d0a;
+        color: white;
+    }
+    .admin-nav-links a.active {
+        background: #1a3d0a;
+        color: white;
+        border-bottom-color: #989D8F;
+    }
+    .admin-nav-links a.btn-primary {
+        background: #364B26;
+        color: white;
+    }
+    .admin-nav-links a.btn-primary:hover {
+        background: #274619;
+    }
+    .admin-nav-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0 1.5rem;
+        background: #1a3d0a;
+        color: #B7B9A3;
+    }
+    .admin-nav-user .avatar {
+        width: 36px;
+        height: 36px;
+        background: #364B26;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    .admin-nav-user a {
+        color: #C5CDC3;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    .admin-nav-user a:hover {
+        color: white;
+    }
+    
+    @media (max-width: 900px) {
+        .admin-nav-container {
+            flex-direction: column;
+        }
+        .admin-nav-links {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .admin-nav-links a {
+            padding: 0.75rem 1rem;
+        }
+    }
+</style>
+
+<nav class="admin-nav">
+    <div class="admin-nav-container">
+        <div class="admin-nav-logo">
+            <span class="icon"></span>
+            <h2>Librarium Admin</h2>
+        </div>
+        
+        <div class="admin-nav-links">
+            <a href="/admin/dashboard" class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+                Inicio
+            </a>
+            <a href="/admin/libros" class="<%= currentPage === 'libros' ? 'active' : '' %>">
+                Libros
+            </a>
+            <a href="/admin/usuarios" class="<%= currentPage === 'usuarios' ? 'active' : '' %>">
+                Usuarios
+            </a>
+            <a href="/admin/prestamos" class="<%= currentPage === 'prestamos' ? 'active' : '' %>">
+                Préstamos
+            </a>
+            <a href="/admin/prestamos/nuevo" class="<%= currentPage === 'nuevo-prestamo' ? 'active' : '' %>">
+                Nuevo Préstamo
+            </a>
+            <a href="/admin/multas" class="<%= currentPage === 'multas' ? 'active' : '' %>">
+                Multas
+            </a>
+            <a href="/admin/reportes" class="<%= currentPage === 'reportes' ? 'active' : '' %>">
+                Reportes
+            </a>
+        </div>
+        
+        <div class="admin-nav-user">
+            <div class="avatar">
+                <%=nombre ? nombre.charAt(0).toUpperCase() : 'U' %>
+            </div>
+            <div>
+                <strong><%= nombre || 'Usuario' %></strong>
+                <br>
+                <a href="/logout">Cerrar sesión</a>
+            </div>
+        </div>
     </div>
+</nav>

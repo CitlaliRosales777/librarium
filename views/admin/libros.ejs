@@ -1,3 +1,4 @@
+<%- include('../partials/header') %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,13 +8,15 @@
     <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
-    <%- include('../partials/header') %>
-    <%- include('../partials/atajos') %>
-
+    
     <main>
         <div class="menu-admin">
+            
             <h1>Gestión de Libros</h1>
+            <a href="/admin/usuarios" class="btn btn-primary">Gestion de Usuarios</a>
+            <a href="/admin/prestamos" class="btn btn-primary">Prestamos</a>
             <a href="/admin/libros/nuevo" class="btn btn-primary">Nuevo Libro</a>
+            <a href="/admin/dashboard" class="btn btn-primary">Inicio</a>
         </div>
         
         <% if (libros && libros.length > 0) { %>

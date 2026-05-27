@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Librarium</title>
+    <title>Crear Cuenta - Librarium</title>
     <link rel="stylesheet" href="/css/estilo.css">
     <style>
         .login-page {
@@ -45,7 +45,7 @@
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
         }
         .logo {
@@ -57,14 +57,20 @@
         h1 { color: #2c3e50; margin: 0.5rem 0; font-size: 1.8rem; }
         h2 { color: #7f8c8d; margin-bottom: 1.5rem; font-size: 1.2rem; font-weight: 400; }
         
-        .form-group { margin-bottom: 1.2rem; text-align: left; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #34495e; font-weight: 500; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-group { margin-bottom: 1rem; text-align: left; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 0.3rem; color: #34495e; font-weight: 500; font-size: 0.9rem; }
         .form-group input {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.7rem;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             box-sizing: border-box;
         }
         .form-group input:focus { outline: none; border-color: #3498db; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
@@ -72,15 +78,16 @@
         button {
             width: 100%;
             padding: 1rem;
-            background: #3498db;
+            background: #27ae60;
             color: white;
             border: none;
             border-radius: 5px;
             font-size: 1.1rem;
             cursor: pointer;
             transition: background 0.3s;
+            margin-top: 0.5rem;
         }
-        button:hover { background: #2980b9; }
+        button:hover { background: #219a52; }
         
         .error {
             background: #e74c3c;
@@ -90,50 +97,67 @@
             margin-bottom: 1rem;
         }
         
-        .registro-link {
+        .login-link {
             margin-top: 1.5rem;
             padding-top: 1.5rem;
             border-top: 1px solid #ddd;
         }
-        .registro-link p {
-            margin: 0;
-            color: #7f8c8d;
-        }
-        .registro-link a {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .registro-link a:hover {
-            text-decoration: underline;
-        }
+        .login-link p { margin: 0; color: #7f8c8d; }
+        .login-link a { color: #3498db; text-decoration: none; font-weight: 600; }
+        .login-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body class="login-page">
     <div class="login-container">
         <img src="/img/logo.png" alt="Logo Librarium" class="logo">
         <h1>Librarium</h1>
-        <h2>Iniciar Sesión</h2>
+        <h2>Crear Cuenta</h2>
         
         <% if (error) { %>
             <div class="error"><%= error %></div>
         <% } %>
         
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label>Correo electrónico</label>
-                <input type="email" name="correo" required placeholder="correo@ejemplo.com">
+        <form action="/registro" method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre(s) *</label>
+                    <input type="text" name="nombre" required placeholder="Juan">
+                </div>
+                <div class="form-group">
+                    <label>Apellido Paterno *</label>
+                    <input type="text" name="apellidoPaterno" required placeholder="Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Apellido Materno</label>
+                    <input type="text" name="apellidoMaterno" placeholder="García">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" name="telefono" placeholder="55 1234 5678">
+                </div>
+                <div class="form-group full">
+                    <label>Correo electrónico *</label>
+                    <input type="email" name="correo" required placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-group full">
+                    <label>Contraseña *</label>
+                    <input type="password" name="contraseña" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group full">
+                    <label>Confirmar Contraseña *</label>
+                    <input type="password" name="contraseñaConfirmar" required placeholder="Repite tu contraseña">
+                </div>
+                <div class="form-group full">
+                    <label>Ciudad</label>
+                    <input type="text" name="ciudad" placeholder="Ciudad de México">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" name="contraseña" required placeholder="Tu contraseña">
-            </div>
-            <button type="submit">Ingresar</button>
+            <button type="submit">Crear Cuenta</button>
         </form>
         
-        <div class="registro-link">
-            <p>¿No tienes cuenta?</p>
-            <a href="/registro">Crear cuenta</a>
+        <div class="login-link">
+            <p>¿Ya tienes cuenta?</p>
+            <a href="/login">Iniciar Sesión</a>
         </div>
     </div>
 </body>
