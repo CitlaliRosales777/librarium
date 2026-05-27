@@ -1,67 +1,168 @@
 <%- include('../partials/header') %>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Libros - Librarium</title>
-    <link rel="stylesheet" href="/css/estilo.css">
-</head>
+
+<style>
+    .menu-admin {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .menu-admin h1 { color: #0E2B04; margin: 0; }
+    .menu-admin .btn { padding: 0.75rem 1.25rem; background: #364B26; color: white; text-decoration: none; border-radius: 6px; }
+    .menu-admin .btn:hover { background: #0E2B04; }
+    
+    /* Grid de libros */
+    .libros-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    .libro-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(14,43,4,0.1);
+        transition: transform 0.3s;
+    }
+    .libro-card:hover {
+        transform: translateY(-5px);
+    }
+    .libro-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #C5CDC3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .libro-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .libro-image .no-image {
+        font-size: 4rem;
+        color: #989D8F;
+    }
+    .libro-info {
+        padding: 1rem;
+    }
+    .libro-info h3 {
+        margin: 0 0 0.5rem;
+        color: #0E2B04;
+        font-size: 1.1rem;
+    }
+    .libro-info .meta {
+        font-size: 0.85rem;
+        color: #766F5F;
+        margin-bottom: 0.5rem;
+    }
+    .libro-info .isbn {
+        font-size: 0.8rem;
+        color: #989D8F;
+        font-family: monospace;
+    }
+    .badge {
+        display: inline-block;
+        padding: 0.3rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .badge.disponible { background: #27ae60; color: white; }
+    .badge.no-disponible { background: #e74c3c; color: white; }
+    
+    .libro-footer {
+        padding: 1rem;
+        background: #f8f9fa;
+        display: flex;
+        gap: 0.5rem;
+    }
+    .libro-footer .btn {
+        padding: 0.5rem 1rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+    .libro-footer .btn:hover { background: #0E2B04; }
+    
+    .no-resultados {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 10px;
+    }
+    .no-resultados p { font-size: 1.2rem; color: #766F5F; }
+    .no-resultados .btn { display: inline-block; margin-top: 1rem; }
+
+    @media (max-width: 768px) {
+        .menu-admin { flex-direction: column; align-items: stretch; }
+        .libros-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
 <body>
     
     <main>
         <div class="menu-admin">
-            
             <h1>Gestión de Libros</h1>
-            <a href="/admin/usuarios" class="btn btn-primary">Gestion de Usuarios</a>
-            <a href="/admin/prestamos" class="btn btn-primary">Prestamos</a>
-            <a href="/admin/libros/nuevo" class="btn btn-primary">Nuevo Libro</a>
-            <a href="/admin/dashboard" class="btn btn-primary">Inicio</a>
+            <div>
+                <a href="/admin/dashboard" class="btn">Inicio</a>
+                <a href="/admin/libros/nuevo" class="btn">Nuevo</a>
+            </div>
         </div>
         
         <% if (libros && libros.length > 0) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>ISBN</th>
-                        <th>Género</th>
-                        <th>Editorial</th>
-                        <th>Año</th>
-                        <th>Disponibles</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% libros.forEach(libro => { %>
-                        <tr>
-                            <td>
-                                <strong><%= libro.Titulo %></strong>
-                            </td>
-                            <td><%= libro.ISBN || 'N/A' %></td>
-                            <td><%= libro.NombreGenero || 'N/A' %></td>
-                            <td><%= libro.NombreEditorial || 'N/A' %></td>
-                            <td><%= libro.AnoPublicacion || '-' %></td>
-                            <td>
-                                <span class="badge <%= libro.disponibles > 0 ? 'disponible' : 'no-disponible' %>">
-                                    <%= libro.disponibles %>
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/admin/libros/<%= libro.IdLibro %>" class="btn btn-small">Ver</a>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+            <div class="libros-grid">
+                <% libros.forEach(libro => { %>
+                    <div class="libro-card">
+                    <!-- Imagen -->
+                    <div class="libro-image">
+                        <% if (libro.ImagenPortada) { %>
+                            <img src="<%= libro.ImagenPortada %>" 
+                                alt="<%= libro.Titulo %>" 
+                                onerror="this.onerror = null; this.src='/img/default-book.png';">
+                        <% } else { %>
+                            <div class="no-image"></div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="libro-info">
+                        <h3><%= libro.Titulo %></h3>
+                        <div class="meta">
+                            <%= libro.NombreGenero || 'Sin género' %> | <%= libro.NombreEditorial || 'Sin editorial' %>
+                        </div>
+                        <div class="isbn"><%= libro.ISBN || 'Sin ISBN' %></div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="badge <%= libro.disponibles > 0 ? 'disponible' : 'no-disponible' %>">
+                                <%= libro.disponibles %> disponible(s)
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Acciones -->
+                    <div class="libro-footer">
+                        <a href="/admin/libros/<%= libro.IdLibro %>" class="btn">Ver</a>
+                        <a href="/admin/libros/editar/<%= libro.IdLibro %>" class="btn">Editar</a>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
         <% } else { %>
             <div class="no-resultados">
                 <p>No hay libros registrados</p>
-                <a href="/admin/libros/nuevo" class="btn btn-primary">Agregar el primer libro</a>
+                <a href="/admin/libros/nuevo" class="btn">Agregar el primer libro</a>
             </div>
         <% } %>
     </main>
     
     <%- include('../partials/footer') %>
+
 </body>
 </html>

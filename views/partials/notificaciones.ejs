@@ -100,32 +100,46 @@
     }
 
     function mostrarNotificaciones(notificaciones) {
-        var container = document.getElementById('notificacionesContainer');
-        
-        // Si no hay notificaciones, no hacer nada
-        if (!notificaciones || notificaciones.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        
-        container.innerHTML = '';
-        
-        notificaciones.forEach(function(n) {
-            var div = document.createElement('div');
-            div.className = 'notificacion';
-            div.innerHTML = 
-                '<div class="notificacion-header">' +
-                    '<strong>📚 Libro Disponible</strong>' +
-                    '<span class="notificacion-close" onclick="this.parentElement.parentElement.remove()">×</span>' +
-                '</div>' +
-                '<div class="notificacion-body">' +
-                    '<p class="libro-titulo">' + n.titulo + '</p>' +
-                    '<p class="mensaje">' + n.mensaje + '</p>' +
-                    '<a href="/user/prestamo/confirmar/' + n.idReserva + '" class="notificacion-btn">' +
-                        'Solicitar Préstamo' +
-                    '</a>' +
-                '</div>';
-            container.appendChild(div);
+    const container = document.getElementById('notificacionesContainer');
+    container.innerHTML = '';
+
+    if (notificaciones.length === 0) return;
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion';
+        div.dataset.id = n.idReserva;   // importante
+
+        div.innerHTML = `
+            <div class="notificacion-header">
+                <strong>¡Libro Disponible!</strong>
+                <span class="notificacion-close" onclick="dismissNotification(${n.idReserva}, this)">×</span>
+            </div>
+            <div class="notificacion-body">
+                <p class="libro-titulo">${n.titulo}</p>
+                <p class="mensaje">${n.mensaje}</p>
+                <a href="/user/prestamo/confirmar/${n.idReserva}" class="notificacion-btn">
+                    Solicitar Préstamo
+                </a>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Nueva función para descartar
+async function dismissNotification(idReserva, element) {
+    try {
+        await fetch('/api/notificaciones/dismiss', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idReserva: idReserva })
         });
+        
+        // Remover la notificación del DOM
+        element.closest('.notificacion').remove();
+    } catch (err) {
+        console.error('Error al descartar:', err);
     }
+}
 </script>

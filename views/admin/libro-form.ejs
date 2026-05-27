@@ -6,67 +6,104 @@
     <title><%= libro ? 'Editar' : 'Nuevo' %> Libro - Librarium</title>
     <link rel="stylesheet" href="/css/estilo.css">
     <style>
-        .search-wrapper {
-            position: relative;
-            margin-bottom: 8px;
-        }
-        .search-wrapper input {
-            width: 100%;
-            padding: 10px 12px 10px 36px;
-            border: 2px solid #989D8F;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-        .search-wrapper input:focus {
-            border-color: #0E2B04;
-            outline: none;
-        }
-        .add-new-btn {
-            margin-top: 8px;
+        .form-container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        .form-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(14,43,4,0.1); }
+        .card-header { padding: 1.5rem; background: #C5CDC3; border-radius: 10px 10px 0 0; }
+        .card-header h1 { color: #0E2B04; margin: 0 0 0.5rem; }
+        .card-header p { color: #766F5F; margin: 0; }
+        
+        .form-body { padding: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { display: block; font-size: 0.85rem; color: #766F5F; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px;
-            background: #C5CDC3;
-            border: 2px dashed #364B26;
-            color: #364B26;
+            border: 2px solid #C5CDC3;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #0E2B04;
+        }
+        
+        /* Campo con botón agregar */
+        .input-with-btn { display: flex; gap: 0.5rem; }
+        .input-with-btn input { flex: 1; }
+        .input-with-btn button {
+            padding: 10px 15px;
+            background: #364B26;
+            color: white;
+            border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+            white-space: nowrap;
         }
-        .add-new-btn:hover {
-            background: #B7B9A3;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(14, 43, 4, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            padding: 24px;
+        .input-with-btn button:hover { background: #0E2B04; }
+        
+        /* Upload de imagen */
+        .upload-zone {
+            border: 2px dashed #C5CDC3;
             border-radius: 10px;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
         }
-        .modal-content h3 {
-            margin-bottom: 16px;
-            color: #0E2B04;
+        .upload-zone:hover { border-color: #0E2B04; background: #f0f0f0; }
+        .upload-zone.dragover { border-color: #0E2B04; background: #e8f0e8; }
+        
+        /* Autores */
+        .autores-select { max-height: 250px; overflow-y: auto; border: 2px solid #C5CDC3; border-radius: 6px; padding: 0.5rem; }
+        .autores-select .autor-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; cursor: pointer; }
+        .autores-select .autor-option:hover { background: #f0f0f0; border-radius: 4px; }
+        .autores-select .autor-option input { width: auto; }
+        
+        /* Buscador autores */
+        .buscador-box { margin-bottom: 0.5rem; }
+        .buscador-box input { width: 100%; padding: 10px; border: 2px solid #C5CDC3; border-radius: 6px; }
+        
+        /* Tags de autores seleccionados */
+        .autores-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .autor-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 5px 10px;
+            background: #C5CDC3;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
-        .modal-actions {
-            margin-top: 16px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+        .autor-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #e74c3c;
+            font-size: 1rem;
         }
+        
+        /* Botones */
+        .form-actions { padding: 1rem 1.5rem; background: #f8f9fa; display: flex; gap: 1rem; justify-content: flex-end; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; text-decoration: none; }
+        .btn-primary { background: #364B26; color: white; }
+        .btn-secondary { background: #C5CDC3; color: #0E2B04; }
+        .btn-small { padding: 8px 12px; font-size: 0.85rem; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(14,43,4,0.7); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 24px; border-radius: 10px; width: 90%; max-width: 420px; }
+        .modal-content h3 { margin: 0 0 1rem; color: #0E2B04; }
+        .modal-content input { width: 100%; padding: 10px; border: 2px solid #C5CDC3; border-radius: 6px; margin-bottom: 1rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+        
+        .breadcrumb { padding: 1rem 2rem; }
+        .breadcrumb a { color: #364B26; text-decoration: none; }
+
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -87,7 +124,7 @@
                 </div>
                 
                 <form action="<%= libro ? '/admin/libros/editar/' + libro.IdLibro : '/admin/libros/nuevo' %>" 
-                      method="POST" enctype="multipart/form-data">
+                      method="POST" enctype="multipart/form-data" id="libroForm">
                     
                     <div class="form-body">
                         <!-- Título -->
@@ -115,41 +152,37 @@
                                        value="<%= libro ? libro.AnoPublicacion : '' %>">
                             </div>
 
-                            <!-- GÉNERO con datalist -->
+                            <!-- Género con buscador -->
                             <div class="form-group">
                                 <label>Género *</label>
-                                <input type="text" name="genero" list="generoList" class="form-control" 
-                                    placeholder="Buscar o escribir género..." 
-                                    value="<%= libro ? libro.NombreGenero : '' %>" required
-                                    autocomplete="off">
+                                <div class="input-with-btn">
+                                    <input type="text" name="genero" id="inputGenero" list="generoList" 
+                                        placeholder="Buscar o escribir género..." 
+                                        value="<%= libro ? libro.NombreGenero : '' %>" required autocomplete="off">
+                                    <button type="button" class="btn" onclick="openModal('genero')">+</button>
+                                </div>
                                 <datalist id="generoList">
                                     <% generos.forEach(function(g) { %>
-                                        <option value="<%= g.NombreGenero %>" data-id="<%= g.IdGenero %>"></option>
+                                        <option value="<%= g.NombreGenero %>"></option>
                                     <% }); %>
                                 </datalist>
-                                <button type="button" class="add-new-btn" onclick="openModal('genero')">
-                                    Agregar nuevo género
-                                </button>
                             </div>
 
-                            <!-- EDITORIAL con datalist -->
+                            <!-- Editorial con buscador -->
                             <div class="form-group">
                                 <label>Editorial *</label>
-                                <input type="text" name="editorial" list="editorialList" class="form-control" 
-                                    placeholder="Buscar o escribir editorial..." 
-                                    value="<%= libro ? libro.NombreEditorial : '' %>" required
-                                    autocomplete="off">
+                                <div class="input-with-btn">
+                                    <input type="text" name="editorial" id="inputEditorial" list="editorialList" 
+                                        placeholder="Buscar o escribir editorial..." 
+                                        value="<%= libro ? libro.NombreEditorial : '' %>" required autocomplete="off">
+                                    <button type="button" class="btn" onclick="openModal('editorial')">+</button>
+                                </div>
                                 <datalist id="editorialList">
                                     <% editoriales.forEach(function(e) { %>
-                                        <option value="<%= e.NombreEditorial %>" data-id="<%= e.IdEditorial %>"></option>
+                                        <option value="<%= e.NombreEditorial %>"></option>
                                     <% }); %>
                                 </datalist>
-                                <button type="button" class="add-new-btn" onclick="openModal('editorial')">
-                                    Agregar nueva editorial
-                                </button>
                             </div>
-
-                            
 
                             <!-- Ubicación -->
                             <div class="form-group">
@@ -171,7 +204,6 @@
                                     <label>Ejemplares *</label>
                                     <input type="number" name="cantidad" class="form-control" 
                                            value="1" min="1" max="50" required>
-                                    <small style="color: #766F5F;">Cantidad de copias físicas</small>
                                 </div>
                             <% } %>
                         </div>
@@ -184,47 +216,68 @@
                                       rows="4"><%= libro ? libro.Sinopsis : '' %></textarea>
                         </div>
 
-                        <!-- Autores -->
+                        <!-- Autores con buscador y selección múltiple -->
                         <div class="form-group full-width">
-                            <label>Autores</label>
-                            <div class="search-wrapper">
-                                <span style="position: absolute; left: 10px; top: 10px; color: #766F5F;"></span>
-                                <input type="text" id="searchAutores" placeholder="Buscar autores..." 
-                                       style="padding-left: 36px;"
-                                       onkeyup="filterAutores()">
+                            <label>Autores (selección múltiple)</label>
+                            
+                            <!-- Buscador -->
+                            <div class="buscador-box">
+                                <input type="text" id="buscadorAutor" placeholder="Buscar autor..." onkeyup="filtrarAutores()">
                             </div>
-                            <div class="autores-select" id="autoresContainer" style="max-height: 250px; overflow-y: auto; border: 2px solid #989D8F; border-radius: 6px;">
+                            
+                            <!-- Tags de autores seleccionados -->
+                            <div class="autores-tags" id="autoresTags">
+                                <% if (typeof autoresIds !== 'undefined' && autoresIds.length > 0) { %>
+                                    <% autoresIds.forEach(function(id) { %>
+                                        <% var autor = todosAutores.find(function(a) { return a.IdAutor === id; }); %>
+                                        <% if (autor) { %>
+                                            <span class="autor-tag" data-id="<%= autor.IdAutor %>">
+                                                <%= autor.Nombre %> <%= autor.ApellidoPaterno %>
+                                                <button type="button" onclick="removeAutor(<%= autor.IdAutor %>)"></button>
+                                            </span>
+                                        <% } %>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            
+                            <!-- Lista de autores -->
+                            <div class="autores-select" id="autoresContainer">
                                 <% if (typeof todosAutores !== 'undefined' && todosAutores.length > 0) { %>
                                     <% todosAutores.forEach(function(a) { %>
-                                        <label class="autor-option">
+                                        <label class="autor-option autor-item" data-nombre="<%= (a.Nombre + ' ' + a.ApellidoPaterno).toLowerCase() %>">
                                             <input type="checkbox" name="autores" value="<%= a.IdAutor %>"
-                                                   <%= typeof autoresIds !== 'undefined' && autoresIds.includes(a.IdAutor) ? 'checked' : '' %>>
-                                            <span class="nombre">
-                                                <%= a.Nombre %> <%= a.ApellidoPaterno %> <%= a.ApellidoMaterno || '' %>
-                                            </span>
+                                                   <%= typeof autoresIds !== 'undefined' && autoresIds.includes(a.IdAutor) ? 'checked' : '' %>
+                                                   onchange="toggleAutor(this, <%= a.IdAutor %>, '<%= a.Nombre %> <%= a.ApellidoPaterno %>')">
+                                            <%= a.Nombre %> <%= a.ApellidoPaterno %> <%= a.ApellidoMaterno || '' %>
                                         </label>
-                                    <% }) %>
+                                    <% }); %>
                                 <% } else { %>
                                     <p style="padding: 1rem; color: #766F5F;">No hay autores registrados</p>
                                 <% } %>
                             </div>
-                            <button type="button" class="add-new-btn" onclick="openModal('autor')">
-                                Agregar nuevo autor
+                            
+                            <!-- Botón agregar nuevo autor -->
+                            <button type="button" class="btn btn-small" style="margin-top: 0.5rem;" onclick="openModal('autor')">
+                                + Agregar nuevo autor
                             </button>
                         </div>
 
-                        <!-- Portada (solo crear) -->
-                        <% if (!libro) { %>
-                            <div class="form-group full-width">
-                                <label>Imagen de Portada</label>
-                                <div class="upload-zone" onclick="document.getElementById('imagen').click()">
-                                    <p style="font-size: 2rem; color: #364B26;"></p>
-                                    <p>Arrastra una imagen o haz clic para seleccionar</p>
-                                    <small style="color: #766F5F;">Formatos: JPG, PNG (máx 2MB)</small>
-                                    <input type="file" name="imagen" id="imagen" class="upload-input" accept="image/*">
-                                </div>
+                        <!-- Imagen de Portada -->
+                        <div class="form-group full-width">
+                            <label>Imagen de Portada</label>
+                            <div class="upload-zone" id="uploadZone">
+                                <p style="font-size: 2rem;"></p>
+                                <p>Arrastra una imagen o haz clic para seleccionar</p>
+                                <small style="color: #766F5F;">Formatos: JPG, PNG (máx 5MB)</small>
+                                <input type="file" name="imagen" id="imagen" accept="image/*" onchange="previewImage(this)">
                             </div>
-                        <% } %>
+                            <div class="image-preview" id="imagePreview">
+                                <% if (libro && libro.ImagenPortada) { %>
+                                    <img src="<%= libro.ImagenPortada %>" alt="Portada actual">
+                                    <p style="color: #766F5F; margin-top: 0.5rem;">Portada actual</p>
+                                <% } %>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-actions">
@@ -238,11 +291,11 @@
         </div>
     </main>
 
-    <!-- MODAL PARA AGREGAR NUEVO -->
+    <!-- MODAL PARA NUEVO -->
     <div class="modal" id="addModal">
         <div class="modal-content">
-            <h3 id="modalTitle">Agregar Nuevo</h3>
-            <input type="text" id="newItemName" class="form-control" placeholder="Nombre...">
+            <h3 id="modalTitle">Nuevo</h3>
+            <input type="text" id="newItemName" placeholder="Nombre...">
             <div class="modal-actions">
                 <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
                 <button type="button" onclick="saveNewItem()" class="btn btn-primary">Guardar</button>
@@ -254,107 +307,176 @@
 
     <script>
         let currentType = '';
-
+        
+        // ============================================================
+        // MODAL
+        // ============================================================
+        
         function openModal(type) {
             currentType = type;
-            var titles = {
-                'genero': 'Nuevo Género',
-                'editorial': 'Nueva Editorial',
-                'autor': 'Nuevo Autor'
+            var titles = { 
+                'genero': 'Nuevo Género', 
+                'editorial': 'Nueva Editorial', 
+                'autor': 'Nuevo Autor' 
             };
             document.getElementById('modalTitle').textContent = titles[type];
             document.getElementById('newItemName').value = '';
             document.getElementById('addModal').classList.add('active');
             document.getElementById('newItemName').focus();
         }
-
+        
         function closeModal() {
             document.getElementById('addModal').classList.remove('active');
         }
-
-        // Cerrar modal al hacer clic fuera
+        
         document.getElementById('addModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
-
+        
+        // ============================================================
+        // GUARDAR NUEVO ELEMENTO (GENERO/EDITORIAL/AUTOR)
+        // ============================================================
+        
         async function saveNewItem() {
             var name = document.getElementById('newItemName').value.trim();
-            if (!name) {
-                alert('El nombre es obligatorio');
-                return;
+            if (!name) { 
+                alert('El nombre es obligatorio'); 
+                return; 
             }
-
+            
             var urls = {
                 'genero': '/admin/generos/nuevo',
                 'editorial': '/admin/editoriales/nuevo',
                 'autor': '/admin/autores/nuevo'
             };
-
+            
             try {
                 var res = await fetch(urls[currentType], {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'nombre=' + encodeURIComponent(name)
                 });
-
+                
                 if (res.ok) {
+                    // Si es nuevo autor, agregarlo directamente
+                    if (currentType === 'autor') {
+                        var text = await res.text();
+                        var match = text.match(/(\d+)$/); // Obtener el ID
+                        if (match) {
+                            addAutor(parseInt(match[1]), name);
+                        }
+                    }
                     alert('Agregado correctamente');
                     closeModal();
                     location.reload();
                 } else {
-                    var text = await res.text();
-                    alert('Error al guardar: ' + text);
+                    alert('Error al guardar');
                 }
             } catch (e) {
-                alert('Error de conexión: ' + e.message);
+                alert('Error: ' + e.message);
             }
         }
-
-        // Filtrar opciones en selects
-        function filterOptions(searchId, selectId) {
-            var filter = document.getElementById(searchId).value.toLowerCase();
-            var select = document.getElementById(selectId);
-            var options = select.getElementsByTagName('option');
-
-            for (var i = 0; i < options.length; i++) {
-                var option = options[i];
-                if (option.value === "") continue;
-                if (option.text.toLowerCase().indexOf(filter) === -1) {
-                    option.style.display = 'none';
+        
+        // ============================================================
+        // BUSCADOR DE AUTORES
+        // ============================================================
+        
+        function filtrarAutores() {
+            var filter = document.getElementById('buscadorAutor').value.toLowerCase();
+            var items = document.querySelectorAll('.autor-item');
+            
+            items.forEach(function(item) {
+                var nombre = item.getAttribute('data-nombre') || '';
+                if (nombre.indexOf(filter) === -1) {
+                    item.style.display = 'none';
                 } else {
-                    option.style.display = '';
+                    item.style.display = '';
                 }
+            });
+        }
+        
+        // ============================================================
+        // AGREGAR/QUITAR AUTOR (Selección múltiple con tags)
+        // ============================================================
+        
+        function toggleAutor(checkbox, idAutor, nombreAutor) {
+            var tagsContainer = document.getElementById('autoresTags');
+            
+            if (checkbox.checked) {
+                // Agregar tag
+                addAutor(idAutor, nombreAutor);
+            } else {
+                // Quitar tag
+                removeAutor(idAutor);
             }
         }
-
-        // Filtrar autores (checkboxes)
-        function filterAutores() {
-            var filter = document.getElementById('searchAutores').value.toLowerCase();
-            var labels = document.querySelectorAll('#autoresContainer .autor-option');
-
-            for (var i = 0; i < labels.length; i++) {
-                var label = labels[i];
-                var text = label.textContent.toLowerCase();
-                if (text.indexOf(filter) === -1) {
-                    label.style.display = 'none';
-                } else {
-                    label.style.display = '';
-                }
-            }
+        
+        function addAutor(idAutor, nombreAutor) {
+            var tagsContainer = document.getElementById('autoresTags');
+            
+            // Verificar si ya existe
+            var existing = tagsContainer.querySelector('[data-id="' + idAutor + '"]');
+            if (existing) return;
+            
+            // Crear tag
+            var tag = document.createElement('span');
+            tag.className = 'autor-tag';
+            tag.setAttribute('data-id', idAutor);
+            tag.innerHTML = nombreAutor + ' <button type="button" onclick="removeAutor(' + idAutor + ')">×</button>';
+            tagsContainer.appendChild(tag);
+            
+            // Marcar checkbox
+            var checkbox = document.querySelector('input[name="autores"][value="' + idAutor + '"]');
+            if (checkbox) checkbox.checked = true;
         }
-
-        // Preview de imagen
-        document.getElementById('imagen').addEventListener('change', function(e) {
-            if (e.target.files && e.target.files[0]) {
+        
+        function removeAutor(idAutor) {
+            var tagsContainer = document.getElementById('autoresTags');
+            
+            // Quitar tag
+            var tag = tagsContainer.querySelector('[data-id="' + idAutor + '"]');
+            if (tag) tag.remove();
+            
+            // Desmarcar checkbox
+            var checkbox = document.querySelector('input[name="autores"][value="' + idAutor + '"]');
+            if (checkbox) checkbox.checked = false;
+        }
+        
+        // ============================================================
+        // PREVIEW DE IMAGEN
+        // ============================================================
+        
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                    // Mostrar preview si quieres
+                    var preview = document.getElementById('imagePreview');
+                    preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
                 };
-                reader.readAsDataURL(e.target.files[0]);
+                reader.readAsDataURL(input.files[0]);
             }
+        }
+        
+        // ============================================================
+        // DRAG & DROP
+        // ============================================================
+        
+        var uploadZone = document.getElementById('uploadZone');
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            var input = document.getElementById('imagen');
+            input.files = e.dataTransfer.files;
+            previewImage(input);
         });
     </script>
-</body>
-</html>

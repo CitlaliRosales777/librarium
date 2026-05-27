@@ -1,0 +1,1164 @@
+{
+  "fecha": "2026-05-27T08:48:33.890Z",
+  "informacion": {
+    "totalLibros": 21,
+    "totalUsuarios": 18,
+    "totalPrestamos": 25
+  },
+  "datos": {
+    "Libros": [
+      {
+        "IdLibro": 1,
+        "ISBN": "9788401024567",
+        "Titulo": "Cien años de soledad",
+        "AnoPublicacion": 1967,
+        "IdGenero": 1,
+        "IdEditorial": 1,
+        "Sinopsis": "La historia de la familia Buendía a lo largo de siete generaciones.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 2,
+        "ISBN": "9788437604947",
+        "Titulo": "El Aleph",
+        "AnoPublicacion": 1949,
+        "IdGenero": 1,
+        "IdEditorial": 3,
+        "Sinopsis": "Colección de cuentos del gran maestro argentino.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 3,
+        "ISBN": "9788401023456",
+        "Titulo": "El juego de Ender",
+        "AnoPublicacion": 1985,
+        "IdGenero": 2,
+        "IdEditorial": 2,
+        "Sinopsis": "Un niño genio es entrenado para salvar a la humanidad.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 4,
+        "ISBN": "9788466658720",
+        "Titulo": "Harry Potter y la piedra filosofal",
+        "AnoPublicacion": 1997,
+        "IdGenero": 3,
+        "IdEditorial": 1,
+        "Sinopsis": "El inicio de la saga del niño que vivió.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 5,
+        "ISBN": "9788401352836",
+        "Titulo": "El problema de los tres cuerpos",
+        "AnoPublicacion": 2008,
+        "IdGenero": 2,
+        "IdEditorial": 2,
+        "Sinopsis": "Primera parte de la trilogía de ciencia ficción china.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 6,
+        "ISBN": "9788401012345",
+        "Titulo": "It",
+        "AnoPublicacion": 1986,
+        "IdGenero": 5,
+        "IdEditorial": 5,
+        "Sinopsis": "El payaso Pennywise aterroriza a un grupo de niños en Derry.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 7,
+        "ISBN": "9788437604954",
+        "Titulo": "Rayuela",
+        "AnoPublicacion": 1963,
+        "IdGenero": 1,
+        "IdEditorial": 3,
+        "Sinopsis": "Una novela experimental que rompe con la narrativa tradicional.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 8,
+        "ISBN": "9780061120091",
+        "Titulo": "Crónica de una muerte anunciada",
+        "AnoPublicacion": 1981,
+        "IdGenero": 7,
+        "IdEditorial": 1,
+        "Sinopsis": "La trágica historia de Santiago Nasar.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 9,
+        "ISBN": "9780060850524",
+        "Titulo": "Dune",
+        "AnoPublicacion": 1965,
+        "IdGenero": 2,
+        "IdEditorial": 9,
+        "Sinopsis": "La saga épica de ciencia ficción más influyente.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 10,
+        "ISBN": "9780307474728",
+        "Titulo": "1984",
+        "AnoPublicacion": 1949,
+        "IdGenero": 8,
+        "IdEditorial": 9,
+        "Sinopsis": "Distopía clásica sobre vigilancia totalitaria.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 11,
+        "ISBN": "9788401027896",
+        "Titulo": "El nombre del viento",
+        "AnoPublicacion": 2007,
+        "IdGenero": 3,
+        "IdEditorial": 1,
+        "Sinopsis": "La historia de Kvothe, el legendario mago.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 12,
+        "ISBN": "9780062315007",
+        "Titulo": "Sapiens",
+        "AnoPublicacion": 2011,
+        "IdGenero": 6,
+        "IdEditorial": 10,
+        "Sinopsis": "Breve historia de la humanidad.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 13,
+        "ISBN": "9788432216784",
+        "Titulo": "La sombra del viento",
+        "AnoPublicacion": 2001,
+        "IdGenero": 9,
+        "IdEditorial": 3,
+        "Sinopsis": "Misterio ambientado en la Barcelona de posguerra.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 14,
+        "ISBN": "9780307387899",
+        "Titulo": "El poder del ahora",
+        "AnoPublicacion": 1997,
+        "IdGenero": 6,
+        "IdEditorial": 9,
+        "Sinopsis": "Guía espiritual sobre el presente.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 15,
+        "ISBN": "9788420457475",
+        "Titulo": "Mujeres que corren con los lobos",
+        "AnoPublicacion": 1992,
+        "IdGenero": 6,
+        "IdEditorial": 2,
+        "Sinopsis": "Recuperación del instinto femenino salvaje.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 16,
+        "ISBN": "9788401352843",
+        "Titulo": "El problema de los tres cuerpos 2",
+        "AnoPublicacion": 2010,
+        "IdGenero": 2,
+        "IdEditorial": 2,
+        "Sinopsis": "Continuación de la trilogía china.",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 18,
+        "ISBN": "9781442424029",
+        "Titulo": "Con cariño, Amalia",
+        "AnoPublicacion": 2012,
+        "IdGenero": 10,
+        "IdEditorial": null,
+        "Sinopsis": "Martha, la mejor amiga de Amalia, va a mudarse muy lejos. Y Amalia se siente triste y enojada. Sin embargo, aunque la vida parece injusta, las sabias palabras cariñosas de su abuelita la ayudan a sentirse un poco mejor. ",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 19,
+        "ISBN": "",
+        "Titulo": "Cuando el café esté listo ",
+        "AnoPublicacion": 2026,
+        "IdGenero": null,
+        "IdEditorial": null,
+        "Sinopsis": "Un café, una silla y una norma que cumplir. Unos pasos que pueden conducir a la felicidad. Pero solo si te encuentras en el lugar adecuado. ..",
+        "ImagenPortada": null
+      },
+      {
+        "IdLibro": 20,
+        "ISBN": "978-6075573076",
+        "Titulo": "Almendra",
+        "AnoPublicacion": 2021,
+        "IdGenero": 16,
+        "IdEditorial": 2,
+        "Sinopsis": "Yunjae nació sin la capacidad de reconocer las emociones. Para él, la alegría, el miedo o la tristeza eran conceptos abstractos, tan lejanos como la gente que lo rodeaba. Su vida transcurría en calma bajo la protección de su madre y su abuela...",
+        "ImagenPortada": "/img/libros/1779869258785-636933489.png"
+      },
+      {
+        "IdLibro": 21,
+        "ISBN": "978-8411121606",
+        "Titulo": "Peligrosa Tienda de Conveniencia",
+        "AnoPublicacion": 2024,
+        "IdGenero": 17,
+        "IdEditorial": 1,
+        "Sinopsis": "El estudiante universitario Yeo Eui-joon trabaja en el turno de noche en una tienda de conveniencia para pagar sus cuentas. El turno apesta, pero el dinero es bueno y los clientes (en su mayoría mafiosos y matones) no causan demasiados problemas.",
+        "ImagenPortada": "/img/libros/1779869133158-244237121.png"
+      },
+      {
+        "IdLibro": 22,
+        "ISBN": "978-6075507712",
+        "Titulo": "La Biblioteca De La Medianoche",
+        "AnoPublicacion": 2021,
+        "IdGenero": 1,
+        "IdEditorial": 4,
+        "Sinopsis": " \"Entre la vida y la muerte hay una biblioteca. Y los estantes de esa biblioteca son infinitos. Cada libro da la oportunidad de probar otra vida que podrías haber vivido y de comprobar cómo habrían cambiado las cosas si hubieras tomado otras decisiones. ¿Habrías hecho algo de manera diferente si hubieras tenido la oportunidad?\".",
+        "ImagenPortada": "/img/libros/1779868821883-756530534.png"
+      }
+    ],
+    "Ejemplares": [
+      {
+        "IdEjemplar": 1,
+        "IdLibro": 1,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB001234",
+        "FechaAdquisicion": "2024-01-15T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 2,
+        "IdLibro": 1,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB001235",
+        "FechaAdquisicion": "2024-01-15T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 3,
+        "IdLibro": 2,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB002341",
+        "FechaAdquisicion": "2024-02-01T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 4,
+        "IdLibro": 3,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 2,
+        "CodigoBarra": "LIB003456",
+        "FechaAdquisicion": "2024-03-10T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 5,
+        "IdLibro": 4,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 4,
+        "CodigoBarra": "LIB004567",
+        "FechaAdquisicion": "2024-01-20T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 6,
+        "IdLibro": 5,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 2,
+        "CodigoBarra": "LIB005678",
+        "FechaAdquisicion": "2025-01-05T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 7,
+        "IdLibro": 6,
+        "IdEstadoMaterial": 3,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB006789",
+        "FechaAdquisicion": "2024-11-12T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 8,
+        "IdLibro": 7,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB007890",
+        "FechaAdquisicion": "2024-02-20T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 9,
+        "IdLibro": 8,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB007891",
+        "FechaAdquisicion": "2024-03-05T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 10,
+        "IdLibro": 9,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 2,
+        "CodigoBarra": "LIB008901",
+        "FechaAdquisicion": "2024-04-10T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 11,
+        "IdLibro": 10,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 2,
+        "CodigoBarra": "LIB008902",
+        "FechaAdquisicion": "2024-05-15T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 12,
+        "IdLibro": 11,
+        "IdEstadoMaterial": 3,
+        "IdUbicacion": 3,
+        "CodigoBarra": "LIB009012",
+        "FechaAdquisicion": "2024-06-01T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 13,
+        "IdLibro": 12,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB009013",
+        "FechaAdquisicion": "2024-07-20T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 14,
+        "IdLibro": 13,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 4,
+        "CodigoBarra": "LIB010123",
+        "FechaAdquisicion": "2025-01-10T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 15,
+        "IdLibro": 14,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 5,
+        "CodigoBarra": "LIB010124",
+        "FechaAdquisicion": "2025-02-05T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 16,
+        "IdLibro": 15,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB011234",
+        "FechaAdquisicion": "2025-03-12T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 17,
+        "IdLibro": 7,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB011235",
+        "FechaAdquisicion": "2024-08-18T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 18,
+        "IdLibro": 8,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB012345",
+        "FechaAdquisicion": "2024-09-22T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 19,
+        "IdLibro": 9,
+        "IdEstadoMaterial": 4,
+        "IdUbicacion": 2,
+        "CodigoBarra": "LIB012346",
+        "FechaAdquisicion": "2024-10-05T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 20,
+        "IdLibro": 10,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 3,
+        "CodigoBarra": "LIB013456",
+        "FechaAdquisicion": "2025-04-01T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 21,
+        "IdLibro": 11,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 4,
+        "CodigoBarra": "LIB013457",
+        "FechaAdquisicion": "2025-04-15T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 22,
+        "IdLibro": 12,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB014567",
+        "FechaAdquisicion": "2025-05-10T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 25,
+        "IdLibro": 13,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB008000",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 26,
+        "IdLibro": 10,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB008001",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 27,
+        "IdLibro": 11,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 1,
+        "CodigoBarra": "LIB008002",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 28,
+        "IdLibro": 18,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "9781442424029-1",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": false
+      },
+      {
+        "IdEjemplar": 29,
+        "IdLibro": 18,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "9781442424029-2",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 30,
+        "IdLibro": 18,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "9781442424029-3",
+        "FechaAdquisicion": "2026-05-25T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 31,
+        "IdLibro": 19,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 2,
+        "CodigoBarra": "-1",
+        "FechaAdquisicion": "2026-05-26T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 32,
+        "IdLibro": 19,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 2,
+        "CodigoBarra": "-2",
+        "FechaAdquisicion": "2026-05-26T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 33,
+        "IdLibro": 20,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "978-6075573076-1",
+        "FechaAdquisicion": "2026-05-27T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 34,
+        "IdLibro": 20,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "978-6075573076-2",
+        "FechaAdquisicion": "2026-05-27T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 35,
+        "IdLibro": 20,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 3,
+        "CodigoBarra": "978-6075573076-3",
+        "FechaAdquisicion": "2026-05-27T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 36,
+        "IdLibro": 21,
+        "IdEstadoMaterial": 2,
+        "IdUbicacion": 4,
+        "CodigoBarra": "978-8411121606-1",
+        "FechaAdquisicion": "2026-05-27T00:00:00.000Z",
+        "Activo": true
+      },
+      {
+        "IdEjemplar": 37,
+        "IdLibro": 22,
+        "IdEstadoMaterial": 1,
+        "IdUbicacion": 3,
+        "CodigoBarra": "978-6075507712-1",
+        "FechaAdquisicion": "2026-05-27T00:00:00.000Z",
+        "Activo": true
+      }
+    ],
+    "Usuarios": [
+      {
+        "IdUsuario": 1,
+        "Nombre": "Admin",
+        "ApellidoPaterno": "Principal",
+        "ApellidoMaterno": null,
+        "Correo": "admin@librarium.mx",
+        "IdRol": 1,
+        "Activo": true,
+        "FechaRegistro": "2026-05-17T11:36:15.267Z"
+      },
+      {
+        "IdUsuario": 2,
+        "Nombre": "María",
+        "ApellidoPaterno": "López",
+        "ApellidoMaterno": "García",
+        "Correo": "maria.lopez@librarium.mx",
+        "IdRol": 2,
+        "Activo": true,
+        "FechaRegistro": "2026-05-17T11:36:15.267Z"
+      },
+      {
+        "IdUsuario": 3,
+        "Nombre": "Carlos",
+        "ApellidoPaterno": "Hernández",
+        "ApellidoMaterno": "Ruiz",
+        "Correo": "carlos.h@librarium.mx",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-17T11:36:15.267Z"
+      },
+      {
+        "IdUsuario": 4,
+        "Nombre": "Ana",
+        "ApellidoPaterno": "Rodríguez",
+        "ApellidoMaterno": "Pérez",
+        "Correo": "ana.rodriguez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-17T11:36:15.267Z"
+      },
+      {
+        "IdUsuario": 5,
+        "Nombre": "Luis",
+        "ApellidoPaterno": "Ramírez",
+        "ApellidoMaterno": "Sánchez",
+        "Correo": "luis.ramirez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 6,
+        "Nombre": "Sofía",
+        "ApellidoPaterno": "Mendoza",
+        "ApellidoMaterno": "Vega",
+        "Correo": "sofia.mendoza@hotmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 7,
+        "Nombre": "Roberto",
+        "ApellidoPaterno": "Castillo",
+        "ApellidoMaterno": "Mora",
+        "Correo": "roberto.castillo@librarium.mx",
+        "IdRol": 2,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 8,
+        "Nombre": "Valentina",
+        "ApellidoPaterno": "Cruz",
+        "ApellidoMaterno": "Ortega",
+        "Correo": "valentina.cruz@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 9,
+        "Nombre": "Diego",
+        "ApellidoPaterno": "Morales",
+        "ApellidoMaterno": "Pineda",
+        "Correo": "diego.morales@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 10,
+        "Nombre": "Camila",
+        "ApellidoPaterno": "Torres",
+        "ApellidoMaterno": "Luna",
+        "Correo": "camila.torres@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 11,
+        "Nombre": "Fernando",
+        "ApellidoPaterno": "Ruiz",
+        "ApellidoMaterno": "Navarro",
+        "Correo": "fernando.ruiz@librarium.mx",
+        "IdRol": 2,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 12,
+        "Nombre": "Lucía",
+        "ApellidoPaterno": "Gómez",
+        "ApellidoMaterno": "Herrera",
+        "Correo": "lucia.gomez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:27:31.683Z"
+      },
+      {
+        "IdUsuario": 14,
+        "Nombre": "Elena",
+        "ApellidoPaterno": "García",
+        "ApellidoMaterno": "Pérez",
+        "Correo": "elena.garcia@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:44:46.443Z"
+      },
+      {
+        "IdUsuario": 15,
+        "Nombre": "Miguel",
+        "ApellidoPaterno": "López",
+        "ApellidoMaterno": "Sánchez",
+        "Correo": "miguel.lopez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:44:46.443Z"
+      },
+      {
+        "IdUsuario": 16,
+        "Nombre": "Laura",
+        "ApellidoPaterno": "Martínez",
+        "ApellidoMaterno": "Ruiz",
+        "Correo": "laura.martinez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:44:46.443Z"
+      },
+      {
+        "IdUsuario": 17,
+        "Nombre": "Roberto",
+        "ApellidoPaterno": "Hernández",
+        "ApellidoMaterno": "Vega",
+        "Correo": "roberto.hdez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:44:46.443Z"
+      },
+      {
+        "IdUsuario": 18,
+        "Nombre": "Sofía",
+        "ApellidoPaterno": "Ramírez",
+        "ApellidoMaterno": "Luna",
+        "Correo": "sofia.ramirez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-25T10:44:46.443Z"
+      },
+      {
+        "IdUsuario": 19,
+        "Nombre": "Raul",
+        "ApellidoPaterno": "Martinez",
+        "ApellidoMaterno": null,
+        "Correo": "raul.martinez@gmail.com",
+        "IdRol": 3,
+        "Activo": true,
+        "FechaRegistro": "2026-05-26T18:11:34.120Z"
+      }
+    ],
+    "Prestamos": [
+      {
+        "IdPrestamo": 1,
+        "IdUsuario": 3,
+        "IdEjemplar": 1,
+        "FechaPrestamo": "2026-05-17T11:36:26.997Z",
+        "FechaDevolucionEsperada": "2026-06-01T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-25T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 2,
+        "IdUsuario": 4,
+        "IdEjemplar": 4,
+        "FechaPrestamo": "2026-05-17T11:36:26.997Z",
+        "FechaDevolucionEsperada": "2026-06-01T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 3,
+        "IdUsuario": 4,
+        "IdEjemplar": 5,
+        "FechaPrestamo": "2026-05-21T21:26:18.110Z",
+        "FechaDevolucionEsperada": "2026-06-01T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 4,
+        "IdUsuario": 3,
+        "IdEjemplar": 6,
+        "FechaPrestamo": "2026-05-25T09:20:24.643Z",
+        "FechaDevolucionEsperada": "2026-06-01T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 5,
+        "IdUsuario": 5,
+        "IdEjemplar": 8,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-06T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 6,
+        "IdUsuario": 6,
+        "IdEjemplar": 12,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 7,
+        "IdUsuario": 7,
+        "IdEjemplar": 15,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-04T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 8,
+        "IdUsuario": 8,
+        "IdEjemplar": 9,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-14T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-26T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 9,
+        "IdUsuario": 9,
+        "IdEjemplar": 3,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 10,
+        "IdUsuario": 5,
+        "IdEjemplar": 18,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-02T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 11,
+        "IdUsuario": 10,
+        "IdEjemplar": 7,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 12,
+        "IdUsuario": 6,
+        "IdEjemplar": 14,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-12T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 13,
+        "IdUsuario": 8,
+        "IdEjemplar": 20,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-06T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 14,
+        "IdUsuario": 9,
+        "IdEjemplar": 11,
+        "FechaPrestamo": "2026-05-25T10:27:31.683Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 15,
+        "IdUsuario": 5,
+        "IdEjemplar": 8,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-06T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-26T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 16,
+        "IdUsuario": 6,
+        "IdEjemplar": 12,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 17,
+        "IdUsuario": 7,
+        "IdEjemplar": 15,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-04T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 18,
+        "IdUsuario": 8,
+        "IdEjemplar": 9,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-14T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 19,
+        "IdUsuario": 9,
+        "IdEjemplar": 3,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 20,
+        "IdUsuario": 5,
+        "IdEjemplar": 18,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-02T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 21,
+        "IdUsuario": 10,
+        "IdEjemplar": 7,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 22,
+        "IdUsuario": 6,
+        "IdEjemplar": 14,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-12T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 23,
+        "IdUsuario": 8,
+        "IdEjemplar": 20,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-06T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-27T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 24,
+        "IdUsuario": 9,
+        "IdEjemplar": 11,
+        "FechaPrestamo": "2026-05-25T10:45:10.170Z",
+        "FechaDevolucionEsperada": "2026-06-09T00:00:00.000Z",
+        "FechaDevolucionReal": "2026-05-26T00:00:00.000Z",
+        "IdEstadoPrestamo": 2
+      },
+      {
+        "IdPrestamo": 25,
+        "IdUsuario": 19,
+        "IdEjemplar": 28,
+        "FechaPrestamo": "2026-05-26T22:29:04.510Z",
+        "FechaDevolucionEsperada": "2026-06-06T00:00:00.000Z",
+        "FechaDevolucionReal": null,
+        "IdEstadoPrestamo": 1
+      }
+    ],
+    "Reservas": [
+      {
+        "IdReserva": 1,
+        "IdUsuario": 3,
+        "IdEjemplar": 3,
+        "FechaReserva": "2026-05-17T11:36:29.550Z",
+        "FechaExpiracion": "2026-05-20T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 2,
+        "IdUsuario": 3,
+        "IdEjemplar": 1,
+        "FechaReserva": "2026-05-21T18:49:47.580Z",
+        "FechaExpiracion": "2026-05-25T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 3,
+        "IdUsuario": 3,
+        "IdEjemplar": 6,
+        "FechaReserva": "2026-05-21T18:50:09.560Z",
+        "FechaExpiracion": "2026-05-25T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 6,
+        "IdUsuario": 3,
+        "IdEjemplar": 1,
+        "FechaReserva": "2026-05-25T09:32:46.763Z",
+        "FechaExpiracion": "2026-05-28T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 10,
+        "IdUsuario": 16,
+        "IdEjemplar": 28,
+        "FechaReserva": "2026-05-26T16:54:15.107Z",
+        "FechaExpiracion": "2026-05-29T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 11,
+        "IdUsuario": 16,
+        "IdEjemplar": 17,
+        "FechaReserva": "2026-05-26T16:55:02.630Z",
+        "FechaExpiracion": "2026-05-29T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": false,
+        "Dismissed": false
+      },
+      {
+        "IdReserva": 12,
+        "IdUsuario": 19,
+        "IdEjemplar": 7,
+        "FechaReserva": "2026-05-26T22:30:55.737Z",
+        "FechaExpiracion": "2026-05-30T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": true,
+        "Dismissed": true
+      },
+      {
+        "IdReserva": 13,
+        "IdUsuario": 19,
+        "IdEjemplar": 33,
+        "FechaReserva": "2026-05-27T01:23:27.223Z",
+        "FechaExpiracion": "2026-05-30T00:00:00.000Z",
+        "IdEstadoReserva": 1,
+        "Notificado": true,
+        "Dismissed": true
+      }
+    ],
+    "Multas": [
+      {
+        "IdMulta": 1,
+        "IdPrestamo": 3,
+        "Monto": 45,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": true,
+        "FechaPago": "2025-05-10T00:00:00.000Z",
+        "IdUsuario": 4,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 2,
+        "IdPrestamo": 5,
+        "Monto": 120,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": false,
+        "FechaPago": null,
+        "IdUsuario": 5,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 3,
+        "IdPrestamo": 7,
+        "Monto": 30,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": true,
+        "FechaPago": "2025-04-28T00:00:00.000Z",
+        "IdUsuario": 7,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 4,
+        "IdPrestamo": 2,
+        "Monto": 80,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": false,
+        "FechaPago": null,
+        "IdUsuario": 4,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 5,
+        "IdPrestamo": 8,
+        "Monto": 55,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": true,
+        "FechaPago": "2025-05-20T00:00:00.000Z",
+        "IdUsuario": 8,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 6,
+        "IdPrestamo": 9,
+        "Monto": 150,
+        "FechaCalculo": "2026-05-25T10:27:31.693Z",
+        "Pagado": false,
+        "FechaPago": null,
+        "IdUsuario": 9,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 7,
+        "IdPrestamo": 3,
+        "Monto": 45,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": true,
+        "FechaPago": "2025-05-10T00:00:00.000Z",
+        "IdUsuario": 4,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 8,
+        "IdPrestamo": 5,
+        "Monto": 120,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": true,
+        "FechaPago": "2026-05-25T00:00:00.000Z",
+        "IdUsuario": 5,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 9,
+        "IdPrestamo": 7,
+        "Monto": 30,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": true,
+        "FechaPago": "2025-04-28T00:00:00.000Z",
+        "IdUsuario": 7,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 10,
+        "IdPrestamo": 2,
+        "Monto": 80,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": false,
+        "FechaPago": null,
+        "IdUsuario": 4,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 11,
+        "IdPrestamo": 8,
+        "Monto": 55,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": true,
+        "FechaPago": "2025-05-20T00:00:00.000Z",
+        "IdUsuario": 8,
+        "MotivoManual": null,
+        "EsManual": null
+      },
+      {
+        "IdMulta": 12,
+        "IdPrestamo": 9,
+        "Monto": 150,
+        "FechaCalculo": "2026-05-25T10:45:13.110Z",
+        "Pagado": false,
+        "FechaPago": null,
+        "IdUsuario": 9,
+        "MotivoManual": null,
+        "EsManual": null
+      }
+    ]
+  }
+}

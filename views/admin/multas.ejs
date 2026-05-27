@@ -1,83 +1,195 @@
 <%- include('../partials/header') %>
 
+<style>
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .admin-header h1 { color: #0E2B04; margin: 0; }
+    .menu-admin { display: flex; gap: 0.5rem; }
+    .menu-admin a {
+        padding: 0.75rem 1.25rem;
+        background: #364B26;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+    
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+    }
+    .card h3 { margin: 0 0 0.5rem; color: #766F5F; font-size: 0.9rem; }
+    .card .num { font-size: 2rem; font-weight: bold; }
+    
+    .nueva-multa-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+        margin-bottom: 2rem;
+    }
+    .nueva-multa-container h2 { color: #0E2B04; margin: 0 0 1rem; }
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    .form-group { flex: 1; min-width: 200px; }
+    .form-group label { display: block; font-size: 0.85rem; color: #766F5F; margin-bottom: 0.5rem; }
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #C5CDC3;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #0E2B04; }
+    
+    .campo-otro { display: none; margin-top: 1rem; }
+    .campo-otro.mostrar { display: block; }
+    
+    .btn-agregar {
+        padding: 12px 24px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1); }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #C5CDC3; }
+    th { background: #364B26; color: white; }
+    .badge { padding: 0.3rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
+    .badge.disponible { background: #27ae60; color: white; }
+    .badge.pendiente { background: #e74c3c; color: white; }
+    .btn { padding: 0.5rem 1rem; background: #364B26; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .no-resultados { text-align: center; padding: 3rem; background: white; border-radius: 10px; }
 
-<div class="menu-admin">
+    @media (max-width: 768px) {
+        .dashboard, .form-row { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="admin-header">
     <h1>Gestión de Multas</h1>
-    <a href="/admin/usuarios" class="btn btn-primary">Usuarios</a>
-    <a href="/admin/libros" class="btn btn-primary">Libros</a>
-    <a href="/admin/dashboard" class="btn btn-primary">Inicio</a>
+    <div class="menu-admin">
+        <a href="/admin/usuarios">Usuarios</a>
+        <a href="/admin/dashboard">Inicio</a>
+    </div>
 </div>
 
-<% 
+<%
 var totalPendiente = 0;
 var totalPagado = 0;
-multas.forEach(function(m) { 
-    if (m.Pagado) { 
-        totalPagado += parseFloat(m.Monto); 
-    } else { 
-        totalPendiente += parseFloat(m.Monto); 
-    } 
-}); 
+if (multas && multas.length > 0) {
+    multas.forEach(function(m) { 
+        if (m.Pagado) totalPagado += parseFloat(m.Monto);
+        else totalPendiente += parseFloat(m.Monto);
+    }); 
+}
 %>
 
 <div class="dashboard">
-    <div class="card">
-        <h3>Total Pendiente</h3>
-        <div class="num">$<%= totalPendiente.toFixed(2) %></div>
-    </div>
-    <div class="card">
-        <h3>Total Pagado</h3>
-        <div class="num">$<%= totalPagado.toFixed(2) %></div>
-    </div>
-    <div class="card">
-        <h3>Total Multas</h3>
-        <div class="num"><%= multas.length %></div>
-    </div>
+    <div class="card"><h3>Pendiente</h3><div class="num" style="color:#e74c3c;">$<%= totalPendiente.toFixed(2) %></div></div>
+    <div class="card"><h3>Pagado</h3><div class="num" style="color:#27ae60;">$<%= totalPagado.toFixed(2) %></div></div>
+    <div class="card"><h3>Total</h3><div class="num"><%= multas ? multas.length : 0 %></div></div>
 </div>
 
+<!-- Formulario con datalist -->
+<div class="nueva-multa-container">
+    <h2>Agregar Multa Manual</h2>
+    <form action="/admin/multas/manual" method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" name="nombreBuscar" list="lista-usuarios" 
+                       placeholder="Escribe el nombre..." autocomplete="off" required>
+                <datalist id="lista-usuarios">
+                    <% if (typeof usuarios !== 'undefined' && usuarios) { %>
+                        <% usuarios.forEach(function(u) { %>
+                            <option value="<%= u.Nombre %> <%= u.ApellidoPaterno %>" data-id="<%= u.IdUsuario %>"></option>
+                        <% }); %>
+                    <% } %>
+                </datalist>
+            </div>
+            
+            <div class="form-group">
+                <label>Motivo</label>
+                <select name="motivo" id="select-motivo" onchange="toggleOtro()" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="Daño de material">Daño de material</option>
+                    <option value="Pérdida de libro">Pérdida de libro</option>
+                    <option value="Retraso prolongado">Retraso prolongado</option>
+                    <option value="Mal uso">Mal uso de instalación</option>
+                    <option value="Otro">Otro (especificar)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Monto ($)</label>
+                <input type="number" name="monto" step="0.01" min="0" placeholder="0.00" required>
+            </div>
+            
+            <button type="submit" class="btn-agregar">Agregar</button>
+        </div>
+        
+        <!-- Campo otro motivo -->
+        <div class="campo-otro" id="campo-otro">
+            <div class="form-group">
+                <label>Descripción del motivo</label>
+                <input type="text" name="otroMotivo" placeholder="Describe el motivo...">
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista -->
 <% if (multas && multas.length > 0) { %>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Usuario</th>
-                <th>Libro</th>
-                <th>Fecha Préstamo</th>
-                <th>Fecha Devolución</th>
+                <th>Motivo/Libro</th>
+                <th>Fecha</th>
                 <th>Monto</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                <th>Acción</th>
             </tr>
         </thead>
         <tbody>
             <% multas.forEach(function(m) { %>
             <tr>
-                <td>#<%= m.IdMulta %></td>
                 <td><%= m.nombreUsuario %></td>
-                <td><strong><%= m.Titulo %></strong></td>
-                <td><%= new Date(m.FechaPrestamo).toLocaleDateString('es-MX') %></td>
-                <td><%= m.FechaDevolucionReal ? new Date(m.FechaDevolucionReal).toLocaleDateString('es-MX') : 'Pendiente' %></td>
                 <td>
-                    <% if (m.Pagado) { %>
-                        <strong style="color: #27ae60;">$<%= m.Monto.toFixed(2) %></strong>
+                    <% if (m.Titulo) { %>
+                        <%= m.Titulo %>
                     <% } else { %>
-                        <strong style="color: #e74c3c;">$<%= m.Monto.toFixed(2) %></strong>
+                        <%= m.MotivoManual || '-' %>
                     <% } %>
                 </td>
-                <td>
-                    <% if (m.Pagado) { %>
-                        <span class="badge disponible">Pagado</span>
-                    <% } else { %>
-                        <span class="badge no-disponible">Pendiente</span>
-                    <% } %>
-                </td>
+                <td><%= new Date(m.FechaCalculo).toLocaleDateString('es-MX') %></td>
+                <td style="color: <%= m.Pagado ? '#27ae60' : '#e74c3c' %>">$<%= parseFloat(m.Monto).toFixed(2) %></td>
+                <td><span class="badge <%= m.Pagado ? 'disponible' : 'pendiente' %>"><%= m.Pagado ? 'Pagado' : 'Pendiente' %></span></td>
                 <td>
                     <% if (!m.Pagado) { %>
-                        <form action="/admin/multas/pagar/<%= m.IdMulta %>" method="POST" style="display: inline;">
-                            <button type="submit" class="btn btn-small" onclick="return confirm('¿Confirmar pago?')">Pagar</button>
+                        <form action="/admin/multas/pagar/<%= m.IdMulta %>" method="POST">
+                            <button type="submit" class="btn" onclick="return confirm('¿Pagar?')">Pagar</button>
                         </form>
-                    <% } else { %>
-                        <span style="color: #777; font-size: 0.85rem;">Pagado: <%= new Date(m.FechaPago).toLocaleDateString('es-MX') %></span>
                     <% } %>
                 </td>
             </tr>
@@ -85,9 +197,19 @@ multas.forEach(function(m) {
         </tbody>
     </table>
 <% } else { %>
-    <div class="no-resultados">
-        <p>No hay multas registradas</p>
-    </div>
+    <div class="no-resultados"><p>No hay multas registradas</p></div>
 <% } %>
+
+<script>
+    function toggleOtro() {
+        var select = document.getElementById('select-motivo');
+        var campo = document.getElementById('campo-otro');
+        if (select.value === 'Otro') {
+            campo.classList.add('mostrar');
+        } else {
+            campo.classList.remove('mostrar');
+        }
+    }
+</script>
 
 <%- include('../partials/footer') %>

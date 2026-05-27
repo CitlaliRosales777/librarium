@@ -1,6 +1,5 @@
 <%- include('../partials/header') %>
 
-
 <style>
     .admin-panel {
         padding: 2rem;
@@ -99,6 +98,16 @@
     .menu-admin a[href*="multas"]:hover {
         background: #c0392b;
     }
+
+    /* Botón reportes (morado) */
+    .menu-admin a[href*=" REPORTES "] {
+        background: #8e44ad;
+        color: white;
+    }
+
+    .menu-admin a[href*="reportes"]:hover {
+        background: #6c3483;
+    }
 </style>
 
 
@@ -128,7 +137,9 @@
         <a href="/admin/libros" class="btn">Gestión de Libros</a>
         <a href="/admin/usuarios" class="btn">Gestión de Usuarios</a>
         <a href="/admin/prestamos" class="btn">Préstamos</a>
-        <a href="/admin/multas">Multas</a>
+        <a href="/admin/multas" class="btn">Multas</a>
+        <a href="/admin/reportes" class="btn">Reportes</a>
+        <a href="/admin/backup" class="btn">Copia de Seguridad</a>
     </div>
 </div>
 

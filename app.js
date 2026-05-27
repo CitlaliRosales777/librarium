@@ -11,6 +11,7 @@ const multer = require('multer');
 const path = require('path');
 
 const app = express();
+const fs = require('fs');
 
 // Configuración SQL Server
 const config = {
@@ -227,20 +228,46 @@ app.get('/admin/libros', isAuth, isBibliotecario, async (req, res) => {
     }
 });
 
-// Ver formulario nuevo libro (GET)
+// ==========================================
+// ADMIN - LIBROS
+// ==========================================
+
+// 1. Lista de libros
+app.get('/admin/libros', isAuth, isBibliotecario, async (req, res) => {
+    try {
+        const result = await db.query`
+            SELECT l.*, 
+                   g.NombreGenero, 
+                   e.NombreEditorial,
+                   (SELECT COUNT(*) FROM Ejemplares WHERE IdLibro = l.IdLibro AND Activo = 1) as disponibles
+            FROM Libros l
+            LEFT JOIN Generos g ON l.IdGenero = g.IdGenero
+            LEFT JOIN Editoriales e ON l.IdEditorial = e.IdEditorial
+            ORDER BY l.Titulo
+        `;
+        
+        res.render('admin/libros', { libros: result.recordset });
+    } catch (err) {
+        console.error('Error al listar libros:', err);
+        res.render('admin/libros', { libros: [] });
+    }
+});
+
+// 2. Ver formulario nuevo libro (GET)
 app.get('/admin/libros/nuevo', isAuth, isBibliotecario, async (req, res) => {
     try {
-        const generos = await db.query`SELECT * FROM Generos`;
-        const editoriales = await db.query`SELECT * FROM Editoriales`;
+        const generos = await db.query`SELECT * FROM Generos ORDER BY NombreGenero`;
+        const editoriales = await db.query`SELECT * FROM Editoriales ORDER BY NombreEditorial`;
         const ubicaciones = await db.query`SELECT * FROM Ubicaciones`;
-        const todosAutores = await db.query`SELECT * FROM Autores`;
+        const todosAutores = await db.query`SELECT * FROM Autores ORDER BY ApellidoPaterno, Nombre`;
         
         res.render('admin/libro-form', { 
             libro: null, 
             generos: generos.recordset, 
             editoriales: editoriales.recordset, 
             ubicaciones: ubicaciones.recordset,
-            todosAutores: todosAutores.recordset
+            todosAutores: todosAutores.recordset,
+            autoresIds: []
         });
     } catch (err) {
         console.error('Error:', err);
@@ -248,39 +275,68 @@ app.get('/admin/libros/nuevo', isAuth, isBibliotecario, async (req, res) => {
     }
 });
 
-// Guardar nuevo libro (POST)
+// ====================== NUEVO LIBRO (POST) ======================
 app.post('/admin/libros/nuevo', isAuth, isBibliotecario, upload.single('imagen'), async (req, res) => {
     const { titulo, isbn, ano, genero, editorial, ubicacion, sinopsis, cantidad, autores } = req.body;
     
     try {
+        // Buscar o crear Género
+        let IdGenero;
+        const generoResult = await db.query`SELECT IdGenero FROM Generos WHERE NombreGenero = ${genero}`;
+        if (generoResult.recordset.length > 0) {
+            IdGenero = generoResult.recordset[0].IdGenero;
+        } else {
+            const newGenero = await db.query`INSERT INTO Generos (NombreGenero) OUTPUT INSERTED.IdGenero VALUES (${genero})`;
+            IdGenero = newGenero.recordset[0].IdGenero;
+        }
+
+        // Buscar o crear Editorial
+        let IdEditorial;
+        const editorialResult = await db.query`SELECT IdEditorial FROM Editoriales WHERE NombreEditorial = ${editorial}`;
+        if (editorialResult.recordset.length > 0) {
+            IdEditorial = editorialResult.recordset[0].IdEditorial;
+        } else {
+            const newEditorial = await db.query`INSERT INTO Editoriales (NombreEditorial) OUTPUT INSERTED.IdEditorial VALUES (${editorial})`;
+            IdEditorial = newEditorial.recordset[0].IdEditorial;
+        }
+
+        // Ruta correcta de la imagen
+        let imagenPath = null;
+        if (req.file) {
+            imagenPath = '/img/libros/' + req.file.filename;
+        }
+
+        // Insertar Libro
         const result = await db.query`
-            INSERT INTO Libros (Titulo, ISBN, AnoPublicacion, IdGenero, IdEditorial, Sinopsis)
-            VALUES (${titulo}, ${isbn}, ${parseInt(ano)}, ${parseInt(genero)}, ${parseInt(editorial)}, ${sinopsis})
+            INSERT INTO Libros (Titulo, ISBN, AnoPublicacion, IdGenero, IdEditorial, Sinopsis, ImagenPortada)
+            VALUES (${titulo}, ${isbn || null}, ${parseInt(ano) || null}, ${IdGenero}, ${IdEditorial}, ${sinopsis || null}, ${imagenPath})
             SELECT SCOPE_IDENTITY() as IdLibro
         `;
-        
+
         const idLibro = result.recordset[0].IdLibro;
+
+        // Crear Ejemplares
         const cant = parseInt(cantidad) || 1;
-        
         for (let i = 0; i < cant; i++) {
-            const codigoBarra = isbn + '-' + (i + 1);
+            const codigoBarra = isbn ? `${isbn}-${i+1}` : `LIB${idLibro}-${i+1}`;
             await db.query`
                 INSERT INTO Ejemplares (IdLibro, IdEstadoMaterial, IdUbicacion, CodigoBarra, FechaAdquisicion, Activo)
-                VALUES (${idLibro}, 2, ${parseInt(ubicacion)}, ${codigoBarra}, GETDATE(), 1)
+                VALUES (${idLibro}, 1, ${parseInt(ubicacion)}, ${codigoBarra}, GETDATE(), 1)
             `;
         }
-        
+
+        // Autores
         if (autores) {
             const arr = Array.isArray(autores) ? autores : [autores];
             for (const idAutor of arr) {
                 await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${idLibro}, ${idAutor})`;
             }
         }
-        
-        res.redirect('/admin/libros');
+
+        res.redirect('/admin/libros?success=1');
     } catch (err) {
-        console.error('Error guardar libro:', err);
-        res.send('Error al guardar libro');
+        console.error('Error al crear libro:', err);
+        res.redirect('/admin/libros?error=1');
     }
 });
 
@@ -295,10 +351,8 @@ app.get('/admin/libros/:id', isAuth, isBibliotecario, async (req, res) => {
             WHERE l.IdLibro = ${req.params.id}
         `;
         
-        if (libro.recordset.length === 0) {
-            return res.redirect('/admin/libros');
-        }
-        
+        if (libro.recordset.length === 0) return res.redirect('/admin/libros');
+
         const ejemplares = await db.query`
             SELECT e.*, u.NombreUbicacion, em.NombreEstado as estadoMaterial
             FROM Ejemplares e
@@ -306,24 +360,19 @@ app.get('/admin/libros/:id', isAuth, isBibliotecario, async (req, res) => {
             LEFT JOIN EstadosMaterial em ON e.IdEstadoMaterial = em.IdEstadoMaterial
             WHERE e.IdLibro = ${req.params.id}
         `;
-        
-        let disponiblesCount = 0;
-        if (ejemplares.recordset && ejemplares.recordset.length > 0) {
-            disponiblesCount = ejemplares.recordset.filter(e => e.Activo === 1).length;
-        }
-        
+
         const autores = await db.query`
             SELECT a.* FROM Autores a
             JOIN LibroAutor la ON a.IdAutor = la.IdAutor
             WHERE la.IdLibro = ${req.params.id}
         `;
-        
+
         res.render('admin/libro-detalle', { 
             libro: libro.recordset[0], 
             ejemplares: ejemplares.recordset || [],
             autores: autores.recordset || [],
             historial: [],
-            disponiblesCount: disponiblesCount
+            disponiblesCount: ejemplares.recordset.filter(e => e.Activo === 1).length
         });
     } catch (err) {
         console.error('Error detalle libro:', err);
@@ -335,12 +384,12 @@ app.get('/admin/libros/:id', isAuth, isBibliotecario, async (req, res) => {
 app.get('/admin/libros/editar/:id', isAuth, isBibliotecario, async (req, res) => {
     try {
         const libro = await db.query`SELECT * FROM Libros WHERE IdLibro = ${req.params.id}`;
-        const generos = await db.query`SELECT * FROM Generos`;
-        const editoriales = await db.query`SELECT * FROM Editoriales`;
+        const generos = await db.query`SELECT * FROM Generos ORDER BY NombreGenero`;
+        const editoriales = await db.query`SELECT * FROM Editoriales ORDER BY NombreEditorial`;
         const ubicaciones = await db.query`SELECT * FROM Ubicaciones`;
         const autores = await db.query`SELECT a.IdAutor FROM Autores a JOIN LibroAutor la ON a.IdAutor = la.IdAutor WHERE la.IdLibro = ${req.params.id}`;
         const autoresIds = autores.recordset.map(a => a.IdAutor);
-        const todosAutores = await db.query`SELECT * FROM Autores`;
+        const todosAutores = await db.query`SELECT * FROM Autores ORDER BY ApellidoPaterno, Nombre`;
         
         res.render('admin/libro-form', { 
             libro: libro.recordset[0], 
@@ -356,51 +405,66 @@ app.get('/admin/libros/editar/:id', isAuth, isBibliotecario, async (req, res) =>
     }
 });
 
-// Editar libro (POST)
-app.post('/admin/libros/editar/:id', isAuth, isBibliotecario, async (req, res) => {
-    const { titulo, isbn, ano, genero, editorial, sinopsis, autores } = req.body;
-    
+// ====================== EDITAR LIBRO (POST) ======================
+app.post('/admin/libros/editar/:id', isAuth, isBibliotecario, upload.single('imagen'), async (req, res) => {
+    const { titulo, isbn, ano, genero, editorial, ubicacion, sinopsis, autores } = req.body;
+    const idLibro = req.params.id;
+
     try {
+        // Buscar o crear Género y Editorial
+        let IdGenero = (await db.query`SELECT IdGenero FROM Generos WHERE NombreGenero = ${genero}`).recordset[0]?.IdGenero;
+        if (!IdGenero) {
+            const newG = await db.query`INSERT INTO Generos (NombreGenero) OUTPUT INSERTED.IdGenero VALUES (${genero})`;
+            IdGenero = newG.recordset[0].IdGenero;
+        }
+
+        let IdEditorial = (await db.query`SELECT IdEditorial FROM Editoriales WHERE NombreEditorial = ${editorial}`).recordset[0]?.IdEditorial;
+        if (!IdEditorial) {
+            const newE = await db.query`INSERT INTO Editoriales (NombreEditorial) OUTPUT INSERTED.IdEditorial VALUES (${editorial})`;
+            IdEditorial = newE.recordset[0].IdEditorial;
+        }
+
+        // Manejo de imagen
+        let imagenPath = null;
+        const libroActual = await db.query`SELECT ImagenPortada FROM Libros WHERE IdLibro = ${idLibro}`;
+        
+        if (req.file) {
+            // Eliminar imagen anterior
+            if (libroActual.recordset[0]?.ImagenPortada) {
+                const oldPath = path.join(__dirname, 'public', libroActual.recordset[0].ImagenPortada);
+                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+            }
+            imagenPath = '/img/libros/' + req.file.filename;
+        } else {
+            imagenPath = libroActual.recordset[0]?.ImagenPortada;
+        }
+
+        // Actualizar libro
         await db.query`
             UPDATE Libros 
-            SET Titulo = ${titulo}, ISBN = ${isbn}, AnoPublicacion = ${parseInt(ano)},
-                IdGenero = ${parseInt(genero)}, IdEditorial = ${parseInt(editorial)}, Sinopsis = ${sinopsis}
-            WHERE IdLibro = ${req.params.id}
+            SET Titulo = ${titulo},
+                ISBN = ${isbn || null},
+                AnoPublicacion = ${parseInt(ano) || null},
+                IdGenero = ${IdGenero},
+                IdEditorial = ${IdEditorial},
+                Sinopsis = ${sinopsis || null},
+                ImagenPortada = ${imagenPath}
+            WHERE IdLibro = ${idLibro}
         `;
-        
-        await db.query`DELETE FROM LibroAutor WHERE IdLibro = ${req.params.id}`;
-        
+
+        // Actualizar autores
+        await db.query`DELETE FROM LibroAutor WHERE IdLibro = ${idLibro}`;
         if (autores) {
             const arr = Array.isArray(autores) ? autores : [autores];
             for (const idAutor of arr) {
-                await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${req.params.id}, ${idAutor})`;
+                await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${idLibro}, ${idAutor})`;
             }
         }
-        
-        res.redirect('/admin/libros');
-    } catch (err) {
-        console.error('Error:', err);
-        res.redirect('/admin/libros');
-    }
-});
 
-// Eliminar libro (POST)
-app.post('/admin/libros/eliminar/:id', isAuth, isBibliotecario, async (req, res) => {
-    try {
-        const ejemplares = await db.query`SELECT COUNT(*) as total FROM Ejemplares WHERE IdLibro = ${req.params.id} AND Activo = 1`;
-        
-        if (ejemplares.recordset[0].total > 0) {
-            return res.send('No se puede eliminar: hay ejemplares activos');
-        }
-        
-        await db.query`DELETE FROM LibroAutor WHERE IdLibro = ${req.params.id}`;
-        await db.query`DELETE FROM Ejemplares WHERE IdLibro = ${req.params.id}`;
-        await db.query`DELETE FROM Libros WHERE IdLibro = ${req.params.id}`;
-        
-        res.redirect('/admin/libros');
+        res.redirect('/admin/libros?success=1');
     } catch (err) {
-        console.error('Error:', err);
-        res.redirect('/admin/libros');
+        console.error('Error al editar libro:', err);
+        res.redirect('/admin/libros?error=1');
     }
 });
 
@@ -533,6 +597,9 @@ app.post('/admin/usuarios/rol/:id', isAuth, isAdmin, async (req, res) => {
     res.json({ success: true });
 });
 
+
+
+
 // ==================== ADMIN - DASHBOARD ====================
 
 app.get('/admin/dashboard', isAuth, isBibliotecario, async (req, res) => {
@@ -591,36 +658,6 @@ app.get('/admin/libros/nuevo', isAuth, isBibliotecario, async (req, res) => {
     });
 });
 
-// 3. Guardar nuevo libro (POST)
-app.post('/admin/libros/nuevo', isAuth, isBibliotecario, upload.single('imagen'), async (req, res) => {
-    const { titulo, isbn, ano, genero, editorial, ubicacion, sinopsis, cantidad, autores } = req.body;
-    
-    const result = await db.query`
-        INSERT INTO Libros (Titulo, ISBN, AnoPublicacion, IdGenero, IdEditorial, Sinopsis)
-        VALUES (${titulo}, ${isbn}, ${parseInt(ano)}, ${parseInt(genero)}, ${parseInt(editorial)}, ${sinopsis})
-        SELECT SCOPE_IDENTITY() as IdLibro
-    `;
-    
-    const idLibro = result.recordset[0].IdLibro;
-    const cant = parseInt(cantidad) || 1;
-    
-    for (let i = 0; i < cant; i++) {
-        const codigoBarra = isbn + '-' + (i + 1);
-        await db.query`
-            INSERT INTO Ejemplares (IdLibro, IdEstadoMaterial, IdUbicacion, CodigoBarra, FechaAdquisicion, Activo)
-            VALUES (${idLibro}, 2, ${parseInt(ubicacion)}, ${codigoBarra}, GETDATE(), 1)
-        `;
-    }
-    
-    if (autores) {
-        const arr = Array.isArray(autores) ? autores : [autores];
-        for (const idAutor of arr) {
-            await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${idLibro}, ${idAutor})`;
-        }
-    }
-    
-    res.redirect('/admin/libros');
-});
 
 // 4. Ver detalles del libro
 app.get('/admin/libros/:id', isAuth, isBibliotecario, async (req, res) => {
@@ -906,7 +943,7 @@ app.post('/admin/prestamos/devolver/:id', isAuth, isBibliotecario, async (req, r
                 INSERT INTO Multas (IdPrestamo, Monto)
                 VALUES (${req.params.id}, ${multa})
             `;
-            console.log(`⚠️ Multa generada: $${multa}`);
+            console.log(`Multa generada: $${multa}`);
         }
         
         // Activar ejemplar de nuevo
@@ -1004,63 +1041,72 @@ app.post('/admin/prestamos/cancelar/:id', isAuth, isBibliotecario, async (req, r
 
 // ==================== ADMIN - MULTAS ====================
 
-// 1. Lista de multas
 app.get('/admin/multas', isAuth, isBibliotecario, async (req, res) => {
-    const result = await db.query`
-        SELECT m.*, p.FechaPrestamo, p.FechaDevolucionEsperada, p.FechaDevolucionReal,
-               l.Titulo, u.Nombre + ' ' + u.ApellidoPaterno as nombreUsuario
-        FROM Multas m
-        JOIN Prestamos p ON m.IdPrestamo = p.IdPrestamo
-        JOIN Ejemplares e ON p.IdEjemplar = e.IdEjemplar
-        JOIN Libros l ON e.IdLibro = l.IdLibro
-        JOIN Usuarios u ON p.IdUsuario = u.IdUsuario
-        ORDER BY m.FechaCalculo DESC
-    `;
-    res.render('admin/multas', { multas: result.recordset });
+    try {
+        const multasData = await db.query`
+            SELECT m.*, u.Nombre + ' ' + u.ApellidoPaterno as nombreUsuario, l.Titulo
+            FROM Multas m
+            LEFT JOIN Prestamos p ON m.IdPrestamo = p.IdPrestamo
+            LEFT JOIN Ejemplares e ON p.IdEjemplar = e.IdEjemplar
+            LEFT JOIN Libros l ON e.IdLibro = l.IdLibro
+            LEFT JOIN Usuarios u ON COALESCE(m.IdUsuario, p.IdUsuario) = u.IdUsuario
+            ORDER BY m.FechaCalculo DESC
+        `;
+        
+        // ✅ IMPORTANTE - Pasar usuarios
+        const usuariosData = await db.query`
+            SELECT IdUsuario, Nombre, ApellidoPaterno 
+            FROM Usuarios WHERE Activo = 1
+            ORDER BY ApellidoPaterno
+        `;
+        
+        res.render('admin/multas', { 
+            multas: multasData.recordset,
+            usuarios: usuariosData.recordset
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.render('admin/multas', { multas: [], usuarios: [] });
+    }
 });
 
-// 2. Ver multas de un usuario
-app.get('/admin/multas/usuario/:id', isAuth, isBibliotecario, async (req, res) => {
-    const result = await db.query`
-        SELECT m.*, p.FechaPrestamo, l.Titulo
-        FROM Multas m
-        JOIN Prestamos p ON m.IdPrestamo = p.IdPrestamo
-        JOIN Ejemplares e ON p.IdEjemplar = e.IdEjemplar
-        JOIN Libros l ON e.IdLibro = l.IdLibro
-        WHERE p.IdUsuario = ${req.params.id}
-        ORDER BY m.FechaCalculo DESC
-    `;
-    res.render('admin/multas', { multas: result.recordset });
-});
-
-// 3. Pagar multa (POST)
-app.post('/admin/multas/pagar/:id', isAuth, isBibliotecario, async (req, res) => {
-    const fechaPago = new Date().toISOString().split('T')[0];
+app.post('/admin/multas/manual', isAuth, isBibliotecario, async (req, res) => {
+    const { nombreBuscar, motivo, monto, otroMotivo } = req.body;
     
-    await db.query`
-        UPDATE Multas 
-        SET Pagado = 1, FechaPago = ${fechaPago}
-        WHERE IdMulta = ${req.params.id}
-    `;
-    
-    res.redirect('/admin/multas');
-});
-
-// 4. Eliminar multa (POST)
-app.post('/admin/multas/eliminar/:id', isAuth, isAdmin, async (req, res) => {
-    await db.query`DELETE FROM Multas WHERE IdMulta = ${req.params.id}`;
-    res.redirect('/admin/multas');
-});
-
-// 5. Total multas pendientes (para dashboard)
-app.get('/api/multas/pendientes', isAuth, isBibliotecario, async (req, res) => {
-    const result = await db.query`
-        SELECT SUM(Monto) as total FROM Multas WHERE Pagado = 0
-    `;
-    res.json({ total: result.recordset[0].total || 0 });
+    try {
+        var motivoFinal = motivo === 'Otro' ? otroMotivo : motivo;
+        
+        // Buscar usuario por nombre
+        var nombreParts = nombreBuscar.trim().split(' ');
+        var nombre = nombreParts[0];
+        var apellido = nombreParts[1] || '';
+        
+        const usuario = await db.query`
+            SELECT IdUsuario FROM Usuarios 
+            WHERE Nombre = ${nombre} AND ApellidoPaterno = ${apellido}
+        `;
+        
+        if (usuario.recordset.length === 0) {
+            return res.redirect('/admin/multas?error=1');
+        }
+        
+        await db.query`
+            INSERT INTO Multas (IdUsuario, Monto, Pagado, MotivoManual, EsManual)
+            VALUES (${usuario.recordset[0].IdUsuario}, ${monto}, 0, ${motivoFinal}, 1)
+        `;
+        
+        res.redirect('/admin/multas?success=1');
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/admin/multas');
+    }
 });
 
 // ==================== ADMIN - REPORTES ====================
+
+app.get('/admin/reportes', isAuth, isBibliotecario, (req, res) => {
+    res.render('admin/reportes');
+});
 
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
@@ -1757,6 +1803,43 @@ app.get('/user/mis-prestamos', isAuth, async (req, res) => {
     res.render('user/mis-prestamos', { prestamos: resultado.recordset });
 });
 
+// ==================== HISTORIAL DE NOTIFICACIONES ====================
+app.get('/user/notificaciones', isAuth, async (req, res) => {
+    try {
+        const notificaciones = await db.query`
+            SELECT 
+                r.IdReserva,
+                r.IdEjemplar,
+                l.Titulo,
+                e.CodigoBarra,
+                r.FechaReserva,
+                r.FechaExpiracion,
+                r.Dismissed,
+                e.Activo as ejemplarDisponible,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 FROM Prestamos p 
+                        WHERE p.IdEjemplar = r.IdEjemplar 
+                        AND p.IdUsuario = r.IdUsuario
+                    ) THEN 1 
+                    ELSE 0 
+                END as fuePrestado
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdUsuario = ${req.session.userId}
+            ORDER BY r.FechaReserva DESC
+        `;
+
+        res.render('user/notificaciones', { 
+            notificaciones: notificaciones.recordset 
+        });
+    } catch (err) {
+        console.error('Error historial notificaciones:', err);
+        res.render('user/notificaciones', { notificaciones: [] });
+    }
+});
+
 // ==================== PERFIL (GET) ====================
 
 app.get('/user/perfil', isAuth, async (req, res) => {
@@ -2081,47 +2164,55 @@ app.post('/user/prestamo', isAuth, async (req, res) => {
     }
 });
 
-// 4. Notificaciones - Ver si hay libros disponibles reservados
+// NOTIIISS AAAA
+// ==================== API - NOTIFICACIONES PERSISTENTES ====================
 app.get('/api/notificaciones', isAuth, async (req, res) => {
-    // Obtener reservas activas del usuario
-    const reservas = await db.query`
-        SELECT r.IdReserva, r.IdEjemplar, l.Titulo, e.CodigoBarra
-        FROM Reservas r
-        JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
-        JOIN Libros l ON e.IdLibro = l.IdLibro
-        WHERE r.IdUsuario = ${req.session.userId}
-        AND r.FechaExpiracion >= GETDATE()
-    `;
-    
-    // Verificar cuáles están disponibles ahora
-    const notificaciones = [];
-    for (const reserva of reservas.recordset) {
-        const ejemplar = await db.query`
-            SELECT Activo FROM Ejemplares WHERE IdEjemplar = ${reserva.IdEjemplar}
+    try {
+        const result = await db.query`
+            SELECT 
+                r.IdReserva,
+                r.IdEjemplar,
+                l.Titulo,
+                e.CodigoBarra,
+                r.FechaReserva
+            FROM Reservas r
+            JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
+            JOIN Libros l ON e.IdLibro = l.IdLibro
+            WHERE r.IdUsuario = ${req.session.userId}
+              AND r.FechaExpiracion >= GETDATE()
+              AND e.Activo = 1
+              AND (r.Dismissed = 0 OR r.Dismissed IS NULL)   -- No descartadas
+            ORDER BY r.FechaReserva DESC
         `;
-        if (ejemplar.recordset[0].Activo === 1) {
-            notificaciones.push({
-                idReserva: reserva.IdReserva,
-                titulo: reserva.Titulo,
-                codigo: reserva.CodigoBarra,
-                mensaje: 'Tu libro ya está disponible!'
-            });
-        }
-    }
-    res.json(notificaciones);
-});
 
+        res.json(result.recordset.map(r => ({
+            idReserva: r.IdReserva,
+            idEjemplar: r.IdEjemplar,
+            titulo: r.Titulo,
+            codigo: r.CodigoBarra,
+            mensaje: 'Tu libro ya está disponible!'
+        })));
+    } catch (err) {
+        console.error('Error notificaciones:', err);
+        res.status(500).json([]);
+    }
+});
 // ==================== CONFIRMAR PRÉSTAMO DESDE NOTIFICACIÓN ====================
 
 app.get('/user/prestamo/confirmar/:id', isAuth, async (req, res) => {
     try {
         const reserva = await db.query`
-            SELECT r.*, l.Titulo, e.CodigoBarra
+            SELECT 
+                r.IdReserva,
+                r.IdEjemplar,
+                l.Titulo,
+                e.CodigoBarra,
+                l.IdLibro
             FROM Reservas r
             JOIN Ejemplares e ON r.IdEjemplar = e.IdEjemplar
             JOIN Libros l ON e.IdLibro = l.IdLibro
             WHERE r.IdReserva = ${req.params.id}
-            AND r.IdUsuario = ${req.session.userId}
+              AND r.IdUsuario = ${req.session.userId}
         `;
         
         if (reserva.recordset.length === 0) {
@@ -2130,7 +2221,6 @@ app.get('/user/prestamo/confirmar/:id', isAuth, async (req, res) => {
         
         const r = reserva.recordset[0];
         
-        // Calcular fecha límite (15 días)
         const fechaLimite = new Date();
         fechaLimite.setDate(fechaLimite.getDate() + 15);
         
@@ -2152,26 +2242,47 @@ app.post('/user/prestamo/inmediato', isAuth, async (req, res) => {
     const { IdReserva, IdEjemplar } = req.body;
     
     try {
-        // Eliminar la reserva
-        await db.query`DELETE FROM Reservas WHERE IdReserva = ${IdReserva}`;
+        // Iniciar transacción (recomendado)
+        const transaction = await db.transaction();
         
-        // Calcular fecha de devolución (15 días)
+        // Eliminar la reserva
+        await transaction.query`DELETE FROM Reservas WHERE IdReserva = ${IdReserva}`;
+        
+        // Crear préstamo
         const fechaDev = new Date();
         fechaDev.setDate(fechaDev.getDate() + 15);
         
-        // Crear préstamo
-        await db.query`
+        await transaction.query`
             INSERT INTO Prestamos (IdUsuario, IdEjemplar, FechaDevolucionEsperada, IdEstadoPrestamo)
             VALUES (${req.session.userId}, ${IdEjemplar}, ${fechaDev}, 1)
         `;
         
         // Desactivar ejemplar
-        await db.query`UPDATE Ejemplares SET Activo = 0 WHERE IdEjemplar = ${IdEjemplar}`;
+        await transaction.query`UPDATE Ejemplares SET Activo = 0 WHERE IdEjemplar = ${IdEjemplar}`;
+        
+        await transaction.commit();
         
         res.redirect('/user/mis-prestamos?success=1');
     } catch (err) {
-        console.error('Error:', err);
-        res.redirect('/user/reservas');
+        console.error('Error al procesar préstamo desde reserva:', err);
+        res.redirect('/user/reservas?error=1');
+    }
+});
+// Descartar / Cerrar una notificación
+app.post('/api/notificaciones/dismiss', isAuth, async (req, res) => {
+    const { idReserva } = req.body;
+    
+    try {
+        await db.query`
+            UPDATE Reservas 
+            SET Dismissed = 1 
+            WHERE IdReserva = ${idReserva} 
+            AND IdUsuario = ${req.session.userId}
+        `;
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
     }
 });
 
@@ -2239,3 +2350,274 @@ app.post('/admin/autores/nuevo', isAuth, isBibliotecario, async (req, res) => {
     }
 });
 
+// ============================================================
+// NUEVO LIBRO (POST)
+// ============================================================
+
+app.post('/admin/libros/nuevo', isAuth, isBibliotecario, upload.single('imagen'), async (req, res) => {
+    const { titulo, isbn, ano, genero, editorial, ubicacion, cantidad, sinopsis, autores } = req.body;
+    
+    try {
+        // Buscar o crear género
+        let IdGenero;
+        const generoResult = await db.query`
+            SELECT IdGenero FROM Generos WHERE NombreGenero = ${genero}
+        `;
+        if (generoResult.recordset.length > 0) {
+            IdGenero = generoResult.recordset[0].IdGenero;
+        } else {
+            const newGenero = await db.query`
+                INSERT INTO Generos (NombreGenero) VALUES (${genero})
+                SELECT SCOPE_IDENTITY() as Id
+            `;
+            IdGenero = newGenero.recordset[0].Id;
+        }
+        
+        // Buscar o crear editorial
+        let IdEditorial;
+        const editorialResult = await db.query`
+            SELECT IdEditorial FROM Editoriales WHERE NombreEditorial = ${editorial}
+        `;
+        if (editorialResult.recordset.length > 0) {
+            IdEditorial = editorialResult.recordset[0].IdEditorial;
+        } else {
+            const newEditorial = await db.query`
+                INSERT INTO Editoriales (NombreEditorial) VALUES (${editorial})
+                SELECT SCOPE_IDENTITY() as Id
+            `;
+            IdEditorial = newEditorial.recordset[0].IdEditorial;
+        }
+        
+        // Ruta de imagen
+        const imagenPath = req.file ? '/uploads/libros/' + req.file.filename : null;
+        
+        // Insertar libro
+        const libroResult = await db.query`
+            INSERT INTO Libros (ISBN, Titulo, AnoPublicacion, IdGenero, IdEditorial, IdUbicacion, Sinopsis, ImagenPortada)
+            VALUES (${isbn || null}, ${titulo}, ${ano || null}, ${IdGenero}, ${IdEditorial}, ${ubicacion}, ${sinopsis || null}, ${imagenPath})
+            SELECT SCOPE_IDENTITY() as Id
+        `;
+        
+        const IdLibro = libroResult.recordset[0].Id;
+        
+        // Insertar ejemplares
+        const cant = parseInt(cantidad) || 1;
+        for (let i = 0; i < cant; i++) {
+            const codigo = 'LIB' + String(IdLibro).padStart(5, '0') + String(i+1).padStart(2, '0');
+            await db.query`
+                INSERT INTO Ejemplares (IdLibro, IdEstadoMaterial, IdUbicacion, CodigoBarra, Activo)
+                VALUES (${IdLibro}, 1, ${ubicacion}, ${codigo}, 1)
+            `;
+        }
+        
+        // Insertar autores
+        if (autores) {
+            const autoresArr = Array.isArray(autores) ? autores : [autores];
+            for (const IdAutor of autoresArr) {
+                await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${IdLibro}, ${IdAutor})`;
+            }
+        }
+        
+        res.redirect('/admin/libros?success=1');
+    } catch (err) {
+        console.error('Error al crear libro:', err);
+        res.redirect('/admin/libros?error=1');
+    }
+});
+
+// ============================================================
+// EDITAR LIBRO (POST)
+// ============================================================
+
+app.post('/admin/libros/editar/:id', isAuth, isBibliotecario, upload.single('imagen'), async (req, res) => {
+    const { titulo, isbn, ano, genero, editorial, ubicacion, sinopsis, autores } = req.body;
+    const IdLibro = req.params.id;
+    
+    try {
+        // Buscar o crear género
+        let IdGenero;
+        const generoResult = await db.query`
+            SELECT IdGenero FROM Generos WHERE NombreGenero = ${genero}
+        `;
+        if (generoResult.recordset.length > 0) {
+            IdGenero = generoResult.recordset[0].IdGenero;
+        } else {
+            const newGenero = await db.query`
+                INSERT INTO Generos (NombreGenero) VALUES (${genero})
+                SELECT SCOPE_IDENTITY() as Id
+            `;
+            IdGenero = newGenero.recordset[0].Id;
+        }
+        
+        // Buscar o crear editorial
+        let IdEditorial;
+        const editorialResult = await db.query`
+            SELECT IdEditorial FROM Editoriales WHERE NombreEditorial = ${editorial}
+        `;
+        if (editorialResult.recordset.length > 0) {
+            IdEditorial = editorialResult.recordset[0].IdEditorial;
+        } else {
+            const newEditorial = await db.query`
+                INSERT INTO Editoriales (NombreEditorial) VALUES (${editorial})
+                SELECT SCOPE_IDENTITY() as Id
+            `;
+            IdEditorial = newEditorial.recordset[0].IdEditorial;
+        }
+        
+        // Obtener imagen actual
+        const libroActual = await db.query`
+            SELECT ImagenPortada FROM Libros WHERE IdLibro = ${IdLibro}
+        `;
+        let imagenPath = libroActual.recordset[0]?.ImagenPortada;
+        
+        // Si hay nueva imagen, reemplazar
+        if (req.file) {
+            // Eliminar imagen anterior si existe
+            if (imagenPath && fs.existsSync('public' + imagenPath)) {
+                fs.unlinkSync('public' + imagenPath);
+            }
+            imagenPath = '/img/libros/' + req.file.filename;
+        }
+        
+        // Actualizar libro
+        await db.query`
+            UPDATE Libros SET 
+                ISBN = ${isbn || null},
+                Titulo = ${titulo},
+                AnoPublicacion = ${ano || null},
+                IdGenero = ${IdGenero},
+                IdEditorial = ${IdEditorial},
+                IdUbicacion = ${ubicacion},
+                Sinopsis = ${sinopsis || null},
+                ImagenPortada = ${imagenPath}
+            WHERE IdLibro = ${IdLibro}
+        `;
+        
+        // Actualizar autores
+        await db.query`DELETE FROM LibroAutor WHERE IdLibro = ${IdLibro}`;
+        
+        if (autores) {
+            const autoresArr = Array.isArray(autores) ? autores : [autores];
+            for (const IdAutor of autoresArr) {
+                await db.query`INSERT INTO LibroAutor (IdLibro, IdAutor) VALUES (${IdLibro}, ${IdAutor})`;
+            }
+        }
+        
+        res.redirect('/admin/libros?success=1');
+    } catch (err) {
+        console.error('Error al editar libro:', err);
+        res.redirect('/admin/libros?error=1');
+    }
+});
+
+// ============================================================
+// VER LIBRO (GET) - Para formulario de editar
+// ============================================================
+
+app.get('/admin/libros/editar/:id', isAuth, isBibliotecario, async (req, res) => {
+    try {
+        const libroResult = await db.query`
+            SELECT l.*, g.NombreGenero, e.NombreEditorial, u.NombreUbicacion
+            FROM Libros l
+            LEFT JOIN Generos g ON l.IdGenero = g.IdGenero
+            LEFT JOIN Editoriales e ON l.IdEditorial = e.IdEditorial
+            LEFT JOIN Ubicaciones u ON l.IdUbicacion = u.IdUbicacion
+            WHERE l.IdLibro = ${req.params.id}
+        `;
+        
+        if (libroResult.recordset.length === 0) {
+            return res.redirect('/admin/libros');
+        }
+        
+        const libro = libroResult.recordset[0];
+        
+        // Obtener autores del libro
+        const autoresResult = await db.query`
+            SELECT a.IdAutor, a.Nombre, a.ApellidoPaterno, a.ApellidoMaterno
+            FROM Autores a
+            JOIN LibroAutor la ON a.IdAutor = la.IdAutor
+            WHERE la.IdLibro = ${req.params.id}
+        `;
+        
+        const autoresIds = autoresResult.recordset.map(a => a.IdAutor);
+        
+        // Obtener listas para combos
+        const generos = (await db.query`SELECT * FROM Generos ORDER BY NombreGenero`).recordset;
+        const editoriales = (await db.query`SELECT * FROM Editoriales ORDER BY NombreEditorial`).recordset;
+        const ubicaciones = (await db.query`SELECT * FROM Ubicaciones ORDER BY NombreUbicacion`).recordset;
+        const todosAutores = (await db.query`SELECT * FROM Autores ORDER BY ApellidoPaterno, Nombre`).recordset;
+        
+        res.render('admin/libro-editar', {
+            libro: libro,
+            generos: generos,
+            editoriales: editoriales,
+            ubicaciones: ubicaciones,
+            todosAutores: todosAutores,
+            autoresIds: autoresIds
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.redirect('/admin/libros');
+    }
+});
+
+// ==================== BACKUP - PÁGINA Y PROCESO ====================
+
+// Mostrar página de backup (GET)
+app.get('/admin/backup', isAuth, isAdmin, (req, res) => {
+    res.render('admin/backup', { 
+        success: undefined, 
+        mensaje: null,
+        path: null 
+    });
+});
+
+// Crear backup (POST)
+app.post('/admin/backup', isAuth, isAdmin, async (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        
+        const fecha = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+        const backupDir = path.join(__dirname, 'backups');
+        
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true });
+        }
+
+        const backupPath = path.join(backupDir, `backup_librarium_${fecha}.json`);
+
+        const backupData = {
+            fecha: new Date().toISOString(),
+            informacion: {
+                totalLibros: (await db.query`SELECT COUNT(*) as total FROM Libros`).recordset[0].total,
+                totalUsuarios: (await db.query`SELECT COUNT(*) as total FROM Usuarios`).recordset[0].total,
+                totalPrestamos: (await db.query`SELECT COUNT(*) as total FROM Prestamos`).recordset[0].total,
+            },
+            datos: {
+                Libros: (await db.query`SELECT * FROM Libros`).recordset,
+                Ejemplares: (await db.query`SELECT * FROM Ejemplares`).recordset,
+                Usuarios: (await db.query`SELECT IdUsuario, Nombre, ApellidoPaterno, ApellidoMaterno, Correo, IdRol, Activo, FechaRegistro FROM Usuarios`).recordset,
+                Prestamos: (await db.query`SELECT * FROM Prestamos`).recordset,
+                Reservas: (await db.query`SELECT * FROM Reservas`).recordset,
+                Multas: (await db.query`SELECT * FROM Multas`).recordset
+            }
+        };
+
+        fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
+
+        res.render('admin/backup', { 
+            success: true,
+            mensaje: 'Backup creado exitosamente',
+            path: backupPath
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.render('admin/backup', { 
+            success: false,
+            mensaje: 'Error al crear el backup: ' + err.message,
+            path: null
+        });
+    }
+});

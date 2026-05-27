@@ -274,10 +274,12 @@
         <div class="libro-main">
             <!-- Portada -->
             <div class="libro-portada">
-                <% if (libro.Portada) { %>
-                    <img src="/img/libros/<%= libro.Portada %>" alt="<%= libro.Titulo %>">
+                <% if (libro.ImagenPortada) { %>
+                    <img src="<%= libro.ImagenPortada %>" 
+                        alt="<%= libro.Titulo %>" 
+                        onerror="this.onerror=null; this.src='/img/default-book.png';">
                 <% } else { %>
-                    <div class="sin-foto">No Foto</div>
+                    <div class="sin-foto">📖</div>
                 <% } %>
             </div>
             
@@ -306,7 +308,7 @@
                     <% if (autores && autores.length > 0) { %>
                         <% autores.forEach(autor => { %>
                             <span class="autor-tag">
-                                <%= autor.Nombre %> <%= autor.ApellidoPaterno %>
+                                <%= autor.Nombre %> <%= autor.ApellidoPaterno %> <%= autor.ApellidoMaterno || '' %>
                             </span>
                         <% }) %>
                     <% } else { %>
@@ -317,7 +319,7 @@
                 <!-- Sinopsis -->
                 <% if (libro.Sinopsis) { %>
                     <div class="libro-sinopsis">
-                        <h3>Synopsis</h3>
+                        <h3>Sinopsis</h3>
                         <p><%= libro.Sinopsis %></p>
                     </div>
                 <% } %>
@@ -332,50 +334,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-        
-        <!-- Ejemplares -->
-        <div class="seccion">
-            <h2>Ejemplares (<%= ejemplares.length %>)</h2>
-            
-            <% if (ejemplares && ejemplares.length > 0) { %>
-                <table class="tabla-ejemplares">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Estado</th>
-                            <th>Ubicación</th>
-                            <th>Fecha Adquisición</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                                               <% ejemplares.forEach(ejemplar => { %>
-                            <tr>
-                                <td><strong><%= ejemplar.CodigoBarra || 'N/A' %></strong></td>   
-                                <td><%= ejemplar.estadoMaterial || 'Bueno' %></td>                      
-                                <td>
-                                    <span class="ubicacion-badge">
-                                        <%= ejemplar.NombreUbicacion || 'No asignada' %>              
-                                    </span>
-                                </td>
-                                <td><%= ejemplar.FechaAdquisicion ? new Date(ejemplar.FechaAdquisicion).toLocaleDateString('es-MX') : 'N/A' %></td>  <!-- ✅ ejemplares -> ejemplar -->
-                                <td>
-                                    <% if (ejemplar.Activo) { %>
-                                        <span class="status-badge disponible-badge">Disponible</span>
-                                    <% } else { %>
-                                        <span class="status-badge prestado-badge">Prestado</span>
-                                    <% } %>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            <% } else { %>
-                <div class="empty-state">
-                    <p>No hay ejemplares registrados para este libro.</p>
-                </div>
-            <% } %>
         </div>
         
         <!-- Historial de Préstamos -->

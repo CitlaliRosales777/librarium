@@ -3,64 +3,76 @@
 
 <style>
     .confirm-container {
-        max-width: 500px;
+        max-width: 520px;
         margin: 2rem auto;
         background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(14, 43, 4, 0.12);
         overflow: hidden;
     }
     .confirm-header {
-        background: #e67e22;
+        background: linear-gradient(135deg, #e67e22, #f39c12);
         color: white;
-        padding: 2rem;
+        padding: 2.2rem 1.5rem;
         text-align: center;
     }
     .confirm-header .icono {
-        font-size: 4rem;
-        margin-bottom: 1rem;
+        font-size: 4.5rem;
+        margin-bottom: 0.8rem;
     }
     .confirm-header h1 {
         margin: 0;
-        color: white;
+        font-size: 1.8rem;
     }
     .confirm-body {
         padding: 2rem;
     }
     .libro-info {
         background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+        padding: 1.6rem;
+        border-radius: 10px;
+        margin-bottom: 1.8rem;
+        border-left: 5px solid #e67e22;
     }
     .libro-info h2 {
         color: #0E2B04;
-        margin-bottom: 1rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.4rem;
     }
-    .libro-info .detalle {
+    .detalle {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.7rem;
+        font-size: 1rem;
     }
-    .libro-info .detalle span:first-child {
+    .detalle span:first-child {
         color: #766F5F;
     }
-    .libro-info .detalle span:last-child {
+    .detalle span:last-child {
         color: #0E2B04;
-        font-weight: 500;
+        font-weight: 600;
     }
     .info-reserva {
         background: #C5CDC3;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+        padding: 1.4rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
     }
     .info-reserva p {
-        margin: 0.5rem 0;
+        margin: 0.6rem 0;
         color: #0E2B04;
     }
-    .info-reserva strong {
-        color: #364B26;
+    .aviso {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 1.1rem;
+        border-radius: 8px;
+        margin-bottom: 1.8rem;
+    }
+    .aviso p {
+        margin: 0;
+        color: #856404;
+        font-size: 0.95rem;
     }
     .confirm-actions {
         display: flex;
@@ -68,51 +80,49 @@
     }
     .btn-confirmar {
         flex: 1;
-        padding: 1rem;
+        padding: 1.1rem;
         background: #27ae60;
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
         cursor: pointer;
+        transition: all 0.3s;
     }
-    .btn-confirmar:hover { background: #1e8449; }
+    .btn-confirmar:hover { 
+        background: #1e8449;
+        transform: translateY(-2px);
+    }
     .btn-cancelar {
         flex: 1;
-        padding: 1rem;
+        padding: 1.1rem;
         background: #e74c3c;
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 600;
         text-decoration: none;
         text-align: center;
+        transition: all 0.3s;
     }
-    .btn-cancelar:hover { background: #c0392b; }
-    .aviso {
-        background: #fff3cd;
-        border: 1px solid #ffc107;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-    }
-    .aviso p {
-        margin: 0;
-        color: #856404;
-        font-size: 0.9rem;
+    .btn-cancelar:hover { 
+        background: #c0392b;
+        transform: translateY(-2px);
     }
 </style>
 
 <div class="confirm-container">
     <div class="confirm-header">
-        <div class="icono">🔔</div>
+        <div class="icono"></div>
         <h1>Confirmar Reserva</h1>
     </div>
     
     <div class="confirm-body">
         <div class="aviso">
-            <p>📢 La reserva estará vigente por 3 días. Pasado ese tiempo, expirará automáticamente.</p>
+            <p><strong>Importante:</strong> Esta reserva estará vigente por <strong>3 días</strong>. 
+            Si no retiras el libro en ese tiempo, la reserva caducará automáticamente.</p>
         </div>
         
         <div class="libro-info">
@@ -129,12 +139,16 @@
                 <span>Editorial:</span>
                 <span><%= libro.NombreEditorial || 'Sin editorial' %></span>
             </div>
+            <div class="detalle">
+                <span>Año:</span>
+                <span><%= libro.AnoPublicacion || 'N/A' %></span>
+            </div>
         </div>
         
         <div class="info-reserva">
-            <p><strong>📅 Fecha de reserva:</strong> <%= new Date().toLocaleDateString('es-MX') %></p>
-            <p><strong>📆 Expira:</strong> <%= fechaExpiracion %></p>
-            <p><strong>📖 Código:</strong> <%= codigoBarra %></p>
+            <p><strong>Fecha de reserva:</strong> <%= new Date().toLocaleDateString('es-MX') %></p>
+            <p><strong>Expira el:</strong> <%= fechaExpiracion %></p>
+            <p><strong>Código del ejemplar:</strong> <strong><%= codigoBarra %></strong></p>
         </div>
         
         <form action="/user/reservar" method="POST">
@@ -143,10 +157,10 @@
             
             <div class="confirm-actions">
                 <a href="/user/libro/<%= libro.IdLibro %>" class="btn-cancelar">
-                    ← Cancelar
+                    Cancelar
                 </a>
                 <button type="submit" class="btn-confirmar">
-                    ✓ Confirmar Reserva
+                    Confirmar Reserva
                 </button>
             </div>
         </form>

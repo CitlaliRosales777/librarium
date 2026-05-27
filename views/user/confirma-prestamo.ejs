@@ -1,0 +1,138 @@
+<%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
+
+<style>
+    .confirm-container {
+        max-width: 520px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(14, 43, 4, 0.12);
+        overflow: hidden;
+    }
+    .confirm-header {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 2.2rem 1.5rem;
+        text-align: center;
+    }
+    .confirm-header .icono {
+        font-size: 4.5rem;
+        margin-bottom: 0.8rem;
+    }
+    .confirm-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
+    .confirm-body {
+        padding: 2rem;
+    }
+    .libro-box {
+        background: #f8f9fa;
+        padding: 1.8rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border-left: 5px solid #27ae60;
+    }
+    .libro-box h2 {
+        color: #0E2B04;
+        margin-bottom: 1.2rem;
+        font-size: 1.45rem;
+    }
+    .detalle {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        font-size: 1.05rem;
+    }
+    .detalle span:first-child {
+        color: #766F5F;
+    }
+    .detalle span:last-child {
+        color: #0E2B04;
+        font-weight: 600;
+    }
+    .aviso {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 1.1rem;
+        border-radius: 8px;
+        margin-bottom: 1.8rem;
+    }
+    .aviso p {
+        margin: 0;
+        color: #856404;
+        font-size: 0.95rem;
+    }
+    .confirm-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .btn-confirm {
+        padding: 1.1rem;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-confirm:hover { 
+        background: #1e8449;
+        transform: translateY(-2px);
+    }
+    .btn-cancel {
+        padding: 1rem;
+        color: #766F5F;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+    .btn-cancel:hover {
+        color: #e74c3c;
+    }
+</style>
+
+<div class="confirm-container">
+    <div class="confirm-header">
+        <div class="icono"></div>
+        <h1>Confirmar Préstamo</h1>
+    </div>
+    
+    <div class="confirm-body">
+        <div class="aviso">
+            <p><strong>¡Importante!</strong> Al confirmar este préstamo, el ejemplar quedará a tu nombre por <strong>15 días</strong>.</p>
+        </div>
+        
+        <div class="libro-box">
+            <h2><%= titulo %></h2>
+            <div class="detalle">
+                <span>Código del ejemplar:</span>
+                <span><%= codigoBarra %></span>
+            </div>
+            <div class="detalle">
+                <span>Fecha límite de devolución:</span>
+                <span><%= fechaLimite %></span>
+            </div>
+        </div>
+
+        <form action="/user/prestamo/inmediato" method="POST" class="confirm-actions">
+            <input type="hidden" name="IdReserva" value="<%= idReserva %>">
+            <input type="hidden" name="IdEjemplar" value="<%= idEjemplar %>">
+            
+            <button type="submit" class="btn-confirm">
+                Confirmar Préstamo Ahora
+            </button>
+            
+            <a href="/user/reservas" class="btn-cancel">
+                ← Volver a Mis Reservas
+            </a>
+        </form>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

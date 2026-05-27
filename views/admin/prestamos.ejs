@@ -166,14 +166,24 @@
 </style>
 
 <div class="admin-header">
-    <h1>📖 Gestión de Préstamos</h1>
+    <h1>Gestión de Préstamos</h1>
     <div class="menu-admin">
-        <a href="/admin/prestamos/nuevo">➕ Nuevo</a>
-        <a href="/admin/usuarios">👤 Usuarios</a>
-        <a href="/admin/libros">📚 Libros</a>
-        <a href="/admin/dashboard">🏠 Inicio</a>
+        <a href="/admin/prestamos/nuevo">Nuevo</a>
+        <a href="/admin/usuarios">Usuarios</a>
+        <a href="/admin/libros">Libros</a>
+        <a href="/admin/dashboard">Inicio</a>
     </div>
 </div>
+
+<!-- Buscador -->
+<div class="busqueda-container">
+    <div class="busqueda-box">
+        <input type="text" id="buscador" placeholder="Buscar por usuario o libro...">
+        <button onclick="filtrarBusqueda()">Buscar</button>
+    </div>
+</div>
+
+<p class="contador-busqueda" id="contadorBusqueda"></p>
 
 <%
 // Separar préstamos por estado
@@ -206,11 +216,11 @@ if (prestamos && prestamos.length > 0) {
         <span class="tab-count"><%= prestamosActivos.length %></span>
     </div>
     <div class="tab" onclick="switchTab('vencidos')">
-        ⚠️ Vencidos
+        Vencidos
         <span class="tab-count"><%= prestamosVencidos.length %></span>
     </div>
     <div class="tab" onclick="switchTab('devueltos')">
-        ✅ Devueltos
+        Devueltos
         <span class="tab-count"><%= prestamosDevueltos.length %></span>
     </div>
 </div>
@@ -218,9 +228,9 @@ if (prestamos && prestamos.length > 0) {
 <!-- Préstamos Activos -->
 <div id="tab-activos" class="tab-content active">
     <% if (prestamosActivos.length > 0) { %>
-        <div class="prestamos-grid">
+        <div class="prestamos-grid" id="grid-activos">
             <% prestamosActivos.forEach(function(p) { %>
-                <div class="prestamo-card activo">
+                <div class="prestamo-card activo" data-buscar="<%= (p.nombreUsuario + ' ' + p.Titulo).toLowerCase() %>">
                     <div class="prestamo-header">
                         <div>
                             <h3><%= p.nombreUsuario %></h3>
@@ -243,11 +253,11 @@ if (prestamos && prestamos.length > 0) {
                     <div class="prestamo-footer">
                         <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn-action btn-ver">Ver</a>
                         <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST">
-                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">✓ Devolver</button>
+                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">Devolver</button>
                         </form>
                         <form action="/admin/prestamos/renovar/<%= p.IdPrestamo %>" method="POST">
                             <input type="hidden" name="dias" value="10">
-                            <button type="submit" class="btn-action btn-renovar" onclick="return confirm('¿Renovar 10 días?')">🔄 Renovar</button>
+                            <button type="submit" class="btn-action btn-renovar" onclick="return confirm('¿Renovar 10 días?')">Renovar</button>
                         </form>
                     </div>
                 </div>
@@ -263,12 +273,13 @@ if (prestamos && prestamos.length > 0) {
 <!-- Préstamos Vencidos -->
 <div id="tab-vencidos" class="tab-content">
     <% if (prestamosVencidos.length > 0) { %>
-        <div class="prestamos-grid">
+        <div class="prestamos-grid" id="grid-vencidos">
+
             <% prestamosVencidos.forEach(function(p) { %>
                 <%
                 var diff = Math.ceil((hoy - new Date(p.FechaDevolucionEsperada)) / (1000 * 60 * 60 * 24));
                 %>
-                <div class="prestamo-card vencido">
+                <div class="prestamo-card vencido" data-buscar="<%= (p.nombreUsuario + ' ' + p.Titulo).toLowerCase() %>">
                     <div class="prestamo-header">
                         <div>
                             <h3><%= p.nombreUsuario %></h3>
@@ -291,7 +302,7 @@ if (prestamos && prestamos.length > 0) {
                     <div class="prestamo-footer">
                         <a href="/admin/prestamos/<%= p.IdPrestamo %>" class="btn-action btn-ver">Ver</a>
                         <form action="/admin/prestamos/devolver/<%= p.IdPrestamo %>" method="POST">
-                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">✓ Devolver</button>
+                            <button type="submit" class="btn-action btn-devolver" onclick="return confirm('¿Confirmar devolución?')">Devolver</button>
                         </form>
                     </div>
                 </div>
@@ -307,9 +318,10 @@ if (prestamos && prestamos.length > 0) {
 <!-- Préstamos Devueltos -->
 <div id="tab-devueltos" class="tab-content">
     <% if (prestamosDevueltos.length > 0) { %>
-        <div class="prestamos-grid">
+        <div class="prestamos-grid" id="grid-devueltos">
+
             <% prestamosDevueltos.forEach(function(p) { %>
-                <div class="prestamo-card devuelto">
+                <div class="prestamo-card devuelto" data-buscar="<%= (p.nombreUsuario + ' ' + p.Titulo).toLowerCase() %>">
                     <div class="prestamo-header">
                         <div>
                             <h3><%= p.nombreUsuario %></h3>
@@ -341,24 +353,58 @@ if (prestamos && prestamos.length > 0) {
         </div>
     <% } %>
 </div>
-
 <script>
+    var tabActual = 'activos';
+    
+    function filtrarBusqueda() {
+        var q = document.getElementById('buscador').value.toLowerCase().trim();
+        var contador = document.getElementById('contadorBusqueda');
+        var encontrados = 0;
+        
+        //buscar en el tab activo
+        var gridActual = document.getElementById('grid-' + tabActual);
+        if (gridActual) {
+            var cards = gridActual.querySelectorAll('.prestamo-card');
+            
+            cards.forEach(function(card) {
+                var texto = card.getAttribute('data-buscar') || '';
+                if (q === '' || texto.includes(q)) {
+                    card.style.display = 'block';
+                    encontrados++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Mostrar contador
+        if (q.length > 0) {
+            contador.textContent = 'Se encontraron ' + encontrados + ' resultado(s)';
+        } else {
+            contador.textContent = '';
+        }
+    }
+    
+    // También buscar al escribir
+    document.getElementById('buscador').addEventListener('input', filtrarBusqueda);
+    
     function switchTab(tab) {
-        // Ocultar todos los contenidos
+        tabActual = tab;
+        
         document.querySelectorAll('.tab-content').forEach(function(el) {
             el.classList.remove('active');
         });
         
-        // Desactivar todos los tabs
         document.querySelectorAll('.tab').forEach(function(el) {
             el.classList.remove('active');
         });
         
-        // Mostrar tab seleccionado
         document.getElementById('tab-' + tab).classList.add('active');
-        
-        // Activar tabclickeado
         event.target.classList.add('active');
+        
+        // Limpiar búsqueda
+        document.getElementById('buscador').value = '';
+        document.getElementById('contadorBusqueda').textContent = '';
     }
 </script>
 

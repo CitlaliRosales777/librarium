@@ -1,65 +1,161 @@
 <%- include('../partials/header') %>
 
-<h1>📊 Reportes</h1>
+<style>
+    .admin-panel {
+        padding: 2rem;
+        background: #f5f6fa;
+        min-height: 100vh;
+    }
 
-<div class="grid-3">
-    <!-- Reporte de Libros -->
-    <div class="card">
-        <h3>📚 Reporte de Libros</h3>
-        <p>Inventario completo de libros con ejemplares disponibles</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/libros/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/libros/excel" class="btn btn-small" target="_blank">📊 Excel</a>
-        </div>
+    .admin-panel h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .reportes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .reporte-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .reporte-card h2 {
+        color: #2c3e50;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .reporte-card p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+    }
+
+    .opciones {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .opciones a {
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+    }
+
+    .btn-pdf {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-pdf:hover {
+        background: #c0392b;
+    }
+
+    .btn-excel {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-excel:hover {
+        background: #219a52;
+    }
+
+    .menu-admin {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .menu-admin a {
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        background: #3498db;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .menu-admin a:hover {
+        background: #2980b9;
+    }
+</style>
+
+
+<div class="admin-panel">
+    <h1>Reportes All Time</h1>
+
+    <div class="menu-admin">
+        <a href="/admin/dashboard">Inicio</a>
     </div>
-    
-    <!-- Reporte de Multas -->
-    <div class="card">
-        <h3>⚠️ Reporte de Multas</h3>
-        <p>Multas generadas por retraso en devoluciones</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/multas/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/multas/excel" class="btn btn-small" target="_blank">📊 Excel</a>
+
+    <div class="reportes-grid">
+        <!-- Libros -->
+        <div class="reporte-card">
+            <h2>Libros</h2>
+            <p>Catálogo completo de libros</p>
+            <div class="opciones">
+                <a href="/admin/reportes/libros/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/libros/excel" class="btn-excel">Excel</a>
+            </div>
         </div>
-    </div>
-    
-    <!-- Reporte de Préstamos -->
-    <div class="card">
-        <h3>📖 Reporte de Préstamos</h3>
-        <p>Historial completo de préstamos</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/prestamos/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/prestamos/excel" class="btn btn-small" target="_blank">📊 Excel</a>
+
+        <!-- Préstamos -->
+        <div class="reporte-card">
+            <h2>Préstamos</h2>
+            <p>Historial de préstamos</p>
+            <div class="opciones">
+                <a href="/admin/reportes/prestamos/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/prestamos/excel" class="btn-excel">Excel</a>
+            </div>
         </div>
-    </div>
-    
-    <!-- Reporte de Usuarios -->
-    <div class="card">
-        <h3>👤 Reporte de Usuarios</h3>
-        <p>Lista de usuarios registrados</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/usuarios/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/usuarios/excel" class="btn btn-small" target="_blank">📊 Excel</a>
+
+        <!-- Multas -->
+        <div class="reporte-card">
+            <h2>Multas</h2>
+            <p>Resumen de multas</p>
+            <div class="opciones">
+                <a href="/admin/reportes/multas/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/multas/excel" class="btn-excel">Excel</a>
+            </div>
         </div>
-    </div>
-    
-    <!-- Reporte de Ejemplares -->
-    <div class="card">
-        <h3>📖 Reporte de Ejemplares</h3>
-        <p>Estado de todos los ejemplares</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/ejemplares/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/ejemplares/excel" class="btn btn-small" target="_blank">📊 Excel</a>
+
+        <!-- Usuarios -->
+        <div class="reporte-card">
+            <h2>Usuarios</h2>
+            <p>Lista de usuarios</p>
+            <div class="opciones">
+                <a href="/admin/reportes/usuarios/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/usuarios/excel" class="btn-excel">Excel</a>
+            </div>
         </div>
-    </div>
-    
-    <!-- Reporte de Reservas -->
-    <div class="card">
-        <h3>📅 Reporte de Reservas</h3>
-        <p>Materiales reservados</p>
-        <div style="margin-top: 1rem;">
-            <a href="/admin/reportes/reservas/pdf" class="btn btn-small" target="_blank">📄 PDF</a>
-            <a href="/admin/reportes/reservas/excel" class="btn btn-small" target="_blank">📊 Excel</a>
+
+        <!-- Ejemplares -->
+        <div class="reporte-card">
+            <h2>Ejemplares</h2>
+            <p>Inventario de ejemplares</p>
+            <div class="opciones">
+                <a href="/admin/reportes/ejemplares/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/ejemplares/excel" class="btn-excel">Excel</a>
+            </div>
+        </div>
+
+        <!-- Reservas -->
+        <div class="reporte-card">
+            <h2>Reservas</h2>
+            <p>Historial de reservas</p>
+            <div class="opciones">
+                <a href="/admin/reportes/reservas/pdf" class="btn-pdf" target="_blank">PDF</a>
+                <a href="/admin/reportes/reservas/excel" class="btn-excel">Excel</a>
+            </div>
         </div>
     </div>
 </div>

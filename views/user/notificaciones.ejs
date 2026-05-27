@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+<%- include('../partials/notificaciones') %>
+
+<style>
+    .notif-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .notif-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(14, 43, 4, 0.08);
+        border-left: 5px solid #27ae60;
+    }
+    .notif-card.prestado {
+        border-left-color: #3498db;
+    }
+    .notif-card.descartado {
+        border-left-color: #95a5a6;
+        opacity: 0.85;
+    }
+    .notif-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .notif-titulo {
+        font-size: 1.2rem;
+        color: #0E2B04;
+        font-weight: 600;
+    }
+    .estado {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .estado.disponible { background: #27ae60; color: white; }
+    .estado.prestado { background: #3498db; color: white; }
+    .estado.descartado { background: #95a5a6; color: white; }
+    .fecha {
+        color: #766F5F;
+        font-size: 0.9rem;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #766F5F;
+    }
+</style>
+
+<div class="notif-container">
+    <div class="page-header">
+        <h1>📋 Historial de Notificaciones</h1>
+        <a href="/user/reservas" class="btn btn-secondary">Volver a Mis Reservas</a>
+    </div>
+
+    <% if (notificaciones && notificaciones.length > 0) { %>
+        <% notificaciones.forEach(notif => { %>
+            <div class="notif-card <%= notif.fuePrestado ? 'prestado' : (notif.Dismissed ? 'descartado' : '') %>">
+                <div class="notif-header">
+                    <div class="notif-titulo"><%= notif.Titulo %></div>
+                    <span class="estado <%= notif.fuePrestado ? 'prestado' : (notif.Dismissed ? 'descartado' : 'disponible') %>">
+                        <%= notif.fuePrestado ? '✅ Préstamo Realizado' : 
+                            (notif.Dismissed ? 'Descartado' : '📌 Disponible') %>
+                    </span>
+                </div>
+                
+                <p><strong>Código:</strong> <%= notif.CodigoBarra %></p>
+                <p class="fecha">
+                    Reservado: <%= new Date(notif.FechaReserva).toLocaleDateString('es-MX') %> | 
+                    Expira: <%= new Date(notif.FechaExpiracion).toLocaleDateString('es-MX') %>
+                </p>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="empty-state">
+            <p style="font-size: 3rem; margin-bottom: 1rem;">📭</p>
+            <p>Aún no tienes notificaciones</p>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../partials/footer') %>
